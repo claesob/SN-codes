@@ -1,0 +1,7 @@
+      PARAMETER (MD=350,MDP1=MD+1)
+      PARAMETER (NL=193,NLP1=NL+1)
+c	PARAMETER (NL=130,NLP1=NL+1)
+      PARAMETER (NFEL=5000)
+      PARAMETER (ncr=120)
+      PARAMETER (nio=ncr)
+      

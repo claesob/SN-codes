@@ -1,0 +1,68 @@
+Mass for abundances, rm (1.76, 1.85, 1.95, 2.0):    0.000E+00
+Cooling NS at 12000 days C-dom. L=3e35 T_eff=3e6 Av zone 2 M=19 rm=2.
+Inner boundary at 60 km/s . Fill=0.2. 
+230912
+170                                                                                               
+INMODEL                                                                                             
+slpul                                                                                               
+COMPOSITION                                                                                         
+AVCOMP                                                                                              
+0 1 19 2  19 M zone 2 = O-Si-S                                                                      
+INOUT                                                                                               
+1                                                                                                   
+TEMPLIM                                                                                             
+3000 10000                                                                                          
+MTOT IN GRAM                                                                                        
+22.15D33                                                                                            
+FILLING                                                                                             
+0.2
+MIN_VEL
+60.
+DIFF ITERATION                                                                                      
+1                                                                                                   
+FE II LEVELS                                                                                        
+116                                                                                                 
+ITERATIVE MULTI HE I                                                                                
+ITERATIVE MULTI H I                                                                                 
+ITERATIVE MULTI O I                                                                                 
+ITERATIVE MULTI CA II                                                                               
+ITERATIVE MULTI FE II                                                                               
+MNI IN SOLAR MASSES                                                                                 
+ 0.075                                                                                              
+PULSAR SPECTRUM                                                                                     
+1                                                                                                   
+3.d35 0.75 13.6 1.e4 5e6 1 3                                                                        
+SHELLS TOTAL NUMBER                                                                                 
+350                                                                                                 
+CSHELLS IN CENTER                                                                                   
+35                                                                                                  
+RMCEN ; CENTRAL MASS                                                                                
+.4                                                                                                  
+RMINNER                                                                                             
+1.e-8                                                                                               
+CH LOGT                                                                                             
+0.025                                                                                               
+CH LOGOPT                                                                                           
+0.5                                                                                                 
+ENERGY BINS IN EV                                                                                   
+3. 1.E5                                                                                             
+VEL IN CM/S       
+1.E+09                                                                                              
+SOBOLEV                                                                                             
+NO BACKGROUND CONT.!!                                                                               
+OUTPUT                                                                                              
+1 1 1 1                                                                                             
+PRINT SPECTRUM                                                                                      
+0                                                                                                   
+PRINT LEVELS                                                                                        
+0                                                                                                   
+PRINT EMISSIVITIES FOR EACH ZONE                                                                    
+0                                                                                                   
+PRINT TERMAL BALANCE FOR EACH ITERATION                                                             
+1                                                                                                   
+PRINT IONIZATION RATES                                                                              
+0                                                                                                   
+PRINT ELECTRON ITERATION                                                                            
+0                                                                                                   
+STOP           
+

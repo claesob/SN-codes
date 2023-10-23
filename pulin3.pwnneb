@@ -1,0 +1,66 @@
+PWN at 12000 days L=5.0e34 alpha=1.1 Av zone 2 M=19 rm=2. M
+Sobolev escapes. fill = 0.2 Inner boundary at 50 km/s
+Same as 978 but corrected badnell but V=25 km/s and L=4e34Break from 1.1 -> 1.8 at 4.3keV
+230829                                                                                          
+  991                                                                                            
+INMODEL                                                                                             
+slpul                                                                                               
+COMPOSITION                                                                                         
+AVCOMP                                                                                              
+0 1 19 2  19 M zone 2 = O-Si-S                                                                      
+INOUT                                                                                               
+1                                                                                                   
+TEMPLIM                                                                                             
+3000 10000                                                                                          
+MTOT IN GRAM                                                                                        
+22.15D33                                                                                            
+FILLING                                                                                             
+0.2
+MIN_VEL
+25.
+DIFF ITERATION                                                                                      
+1                                                                                                   
+FE II LEVELS                                                                                        
+116                                                                                                 
+ITERATIVE MULTI HE I                                                                                
+ITERATIVE MULTI H I                                                                                 
+ITERATIVE MULTI O I                                                                                 
+ITERATIVE MULTI CA II                                                                               
+ITERATIVE MULTI FE II                                                                               
+PULSAR SPECTRUM                                                                                     
+1                                                                                                   
+5.0d34 1.1 13.6 1.e4 4e6 0 3                                                                        
+SHELLS TOTAL NUMBER                                                                                 
+350                                                                                                 
+CSHELLS IN CENTER                                                                                   
+35                                                                                                  
+RMCEN ; CENTRAL MASS                                                                                
+.4                                                                                                  
+RMINNER                                                                                             
+1.e-8                                                                                               
+CH LOGT                                                                                             
+0.017                                                                                               
+CH LOGOPT                                                                                           
+0.25                                                                                                
+ENERGY BINS IN EV                                                                                   
+0.1 1.E5                                                                                            
+VEL IN CM/S
+1.E+09                                                                                              
+SOBOLEV                                                                                             
+NO BACKGROUND CONT.!!                                                                               
+OUTPUT                                                                                              
+1 1 1 1                                                                                             
+PRINT SPECTRUM                                                                                      
+0                                                                                                   
+PRINT LEVELS                                                                                        
+0                                                                                                   
+PRINT EMISSIVITIES FOR EACH ZONE                                                                    
+0                                                                                                   
+PRINT TERMAL BALANCE FOR EACH ITERATION                                                             
+1                                                                                                   
+PRINT IONIZATION RATES                                                                              
+0                                                                                                   
+PRINT ELECTRON ITERATION                                                                            
+0                                                                                                   
+STOP         
+
