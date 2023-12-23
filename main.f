@@ -11,7 +11,7 @@ C***********************************************************************
 C**********
       IMPLICIT REAL*8(A-H,O-Z)
       REAL*8 MTOT,MNI56,MSUN
-      character*72 text1,text2,text3,TEXT4,INMOD,MODNRSTR
+      character*72 text1,text2,text3,TEXT4,INMOD,MODNRSTR,intext(1000)
       character*6 FILE1
       character*6 FILE2
       character*7 FILE3
@@ -28,7 +28,7 @@ C**********
       COMMON/TEXT/TEXT1,TEXT2,TEXT3,TEXT4
       COMMON/ITER/ITE
       COMMON/A5/TAUE,ALFA2,EN,TSN,XL40,TEXA,RMAX
-      COMMON/PULSAR/RLTOT,ALFA,EMIN,EMAX,teff_ns,nsterm
+      COMMON/PULSAR/RLTOT,ALFA,ebreak,EMIN,EMAX,teff_ns,nsterm,ibreak
       COMMON/DENS/DEN0,R0,RN
       COMMON/MPAR/MTOT,MNI56,VEXP
       COMMON/RQW/TEFF,RQ
@@ -102,7 +102,14 @@ C     INPUT PARAMETERS IN THIS FILE
       INFIL(1:7)='pulin3.'
       write(0,*)infil
       OPEN(99,FILE=infil)
-
+      do i=1,1000
+         read(99,9281,end=1234)intext(i)
+         write(6,9281)intext(i)
+ 9281    format(a72)
+      enddo
+ 1234 continue
+      inmax=i-1
+      rewind(99)
       READ(99,9899)TEXT1
       READ(99,9899)TEXT2
       READ(99,9899)TEXT4
@@ -126,6 +133,11 @@ C     FILE1= GENERAL OUTPUT FILE = UNIT 6
 c      write(0,*)'output file',file1
       OPEN(6,FILE=FILE1)
       rewind(99)
+      do i=1,inmax
+         write(6,9181)intext(i)
+         write(116,9181)intext(i)
+ 9181    format(a72)
+      enddo
       write(6,*)'Input file for model ',MODNRSTR(1:3)
       write(6,*)' '
 c      write(6,*)'rm_abun,avabund,zams,zone ',rm_abun,avabund,zams,zone
@@ -396,7 +408,7 @@ C       AGN SPECTRUM
 C       PULSAR 
         IF(LABEL(1:3).EQ.'PUL') THEN
 C         SPECTRUM PARAMETERS FOR PULSAR AND FREE FREE SPECTRA
-           READ(99,*)RLTOT,ALFA,EMIN,EMAX,teff_ns,nsterm,nstemp
+           READ(99,*)RLTOT,ALFA,ibreak,ebreak,EMIN,EMAX,teff_ns,nsterm,nstemp
            if(nstemp==2 .or. nstemp==3) then
               tot_lum=rltot
               call ns_atm
@@ -601,7 +613,7 @@ c      real*4 etime,tb1,tb2,tb,ts1,ts2,tarr(2)
       COMMON/QSOM/qso,IAGN,ISTAT,ISOBOL
       COMMON/INSPEC/IBLACKB,IPULSSP,IFERNET,INLR,IFERMAT,ICRAB
       COMMON/AGNPARA/DECON,GAMMION,IPRESS,IDEN,ICDEN
-      COMMON/PULSAR/RLTOT,ALFA,EMIN,EMAX,teff_ns,nsterm
+      COMMON/PULSAR/RLTOT,ALFA,ebreak,EMIN,EMAX,teff_ns,nsterm,ibreak
       COMMON/FNORM/FNORM
       COMMON/LOWION/ILOWION
       COMMON/SPH/ISPH
@@ -1040,16 +1052,17 @@ C
         FL(2,J)=FL(1,J)
         JMEAN(J)=FL(1,J)        
         OLDFLU(J)=JMEAN(J)
-        if(e1(j)>13.6.and.e1(j)<1.e4) then
+        if(e1(j)>13.6.and.e1(j)<2.e4) then
            totl=totl+16.*pi**2*(r15*r(1)*1.e15)**2*fl(1,j)*(e(j+1)-e(j))
         endif
-c        WRITE(6,9245)J,r15*r(1),E1(J),FL(2,J),totl
+        WRITE(116,9245)J,r15*r(1),E1(J),FL(2,J),totl
 9245    FORMAT('J,R,E,FMEAN=J,tot_ion_lum ',I4,1E12.3,10E12.3)
         F0(J)=FL(1,J)
       ENDDO
       write(6,9362)totl
- 9362 format('Total ionizing luminosity 13.6 - 10keV ',1pe12.3)
-      write(6,*)'Fluxed ini ',jmean(3)
+c      write(0,9362)totl
+ 9362 format('Total ionizing luminosity 13.6 - 20keV ',1pe12.3)
+
 c      stop
 C
 C     CALC. NUMBER OF IONIZING PHOTONS
@@ -1078,6 +1091,7 @@ C
       WRITE(6,7778) VP,VVP
 C     WRITE(6,525)
       WRITE(6,7779) U1,U2
+
  7778 FORMAT(1X,'NUMBER OF IONIZING PHOTONS: S(13.6-54 EV)=',1PE13.6
      &,' S( >54 EV)=',E13.6)
  7779 FORMAT(1X,'IONIZATION PARAMETER: U1(13.6-54 EV)=',1PE13.6
@@ -1284,7 +1298,6 @@ C     *****
 C     CALCULATE PHOTOIONIZATION RATES FOR SLAB 1
 C     *****
 C     ***********************************************************
-      write(6,*)'sk(1,10),sk(2,10) bef rate ',sk(1,50),sk(2,50)
       CALL RATE(1.d0)
       DO J=JMIN,JJ
         TAU(1,J)=0.0E0
@@ -1569,6 +1582,7 @@ C
          DO J=JMIN,JJ
             JMEAN(J)=OLDFLU(J)
          ENDDO
+
          CALL RATE(1.d0)
          DO 6372 J=JMIN,JJ
             IF(I.NE.2)  FL(1,J)=FL(2,J)

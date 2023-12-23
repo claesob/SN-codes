@@ -487,7 +487,7 @@ C
       COMMON/FNORM/FNORM
       COMMON/HYDROS/HSCALE,DEN1,XEQ,AMEAN
       COMMON/RQW/TEFF,RQ
-      COMMON/PULSAR/RLTOT,ALFA,EMIN,EMAX,teff_ns,nsterm
+      COMMON/PULSAR/RLTOT,ALFA,ebreak,EMIN,EMAX,teff_ns,nsterm,ibreak
       COMMON/CINOUT/INOUT,IPULS
       COMMON/CICS/RSHOCK,ics
       COMMON/QSOM/qso,IAGN,ISTAT,ISOBOL
@@ -536,29 +536,52 @@ c constant power law spectrum
         con1=con
         rl01=rl0
         
-c broken power law at X-rays
-c normalize to lum between 13.6 and infinity 
-c break for L=1e36 and alpha=1.1
-        ebreak=4.3e3 
-c 
-        ebreak=1.e4 
+c$$$c broken power law at X-rays
+c$$$c normalize to lum between 13.6 and infinity 
+c$$$c break for L=1e36 and alpha=1.1
+c$$$        ebreak=4.3e3 
+c$$$c 
+c$$$        ebreak=1.e4
+c$$$c break energy for Greco lum and power law with 13.6 - inf lum 1.e36
+c$$$        ebreak=4.31e3
+c$$$c     d:o for 5e35
+c$$$        ebreak=1.34e4
+c$$$      ebreak=1.34e14
+c$$$c     d:o for 2e36 erg/s
+c$$$c        ebreak=1.13e3
+c power law for e > ebreak   
         beta=1.8
         e0=13.6
         euv=1.0
         aluv=0.6
-         fac=1.-(e0/ebreak)**(alfa-1.)+
-     &        (e0/ebreak)**(alfa-1.)*(alfa-1.)/(beta-1.)
-         con=rltot*(alfa-1.)/(e0*fac)
-         if(e_j<ebreak.and.e_j>euv) then
-            fac=(e0/e_j)**alfa
-         elseif(e_j<euv) then
-            fac=(e0/euv)**alfa*(euv/e_j)**aluv
-         else
-            fac=(e0/ebreak)**alfa * (ebreak/e_j)**beta
-         endif
-
-         rl0=con*fac
-         
+        fac=1.-(e0/ebreak)**(alfa-1.)+
+     &       (e0/ebreak)**(alfa-1.)*(alfa-1.)/(beta-1.)
+        con=rltot*(alfa-1.)/(e0*fac)
+        if(e_j<ebreak.and.e_j>euv) then
+           fac=(e0/e_j)**alfa
+        elseif(ibreak==0 .and. e_j>euv) then
+           fac=(e0/e_j)**alfa           
+        elseif(e_j<euv) then
+           fac=(e0/euv)**alfa*(euv/e_j)**aluv
+        elseif(ibreak==1 .and. e_j>ebreak) then
+           fac=(e0/ebreak)**alfa * (ebreak/e_j)**beta
+        endif
+        
+c fix the spectrum to the luminosity density at 13.6 iundependent of break
+c only depoendent on the total luminosity WITHOUT break
+        emax=2.e4
+        dlde13p6=rltot*(alfa-1.)/(e0*(1.-(e0/emax)**(alfa-1.)))
+        if(e_j<ebreak.and.e_j>euv) then
+           spec=(e0/e_j)**alfa
+        elseif(ibreak==0 .and. e_j>euv) then
+           spec=(e0/e_j)**alfa           
+        elseif(e_j<euv) then
+           spec=(e0/euv)**alfa*(euv/e_j)**aluv
+        elseif(ibreak==1 .and. e_j>ebreak) then
+           spec=(e0/ebreak)**alfa * (ebreak/e_j)**beta
+        endif        
+        rl0=dlde13p6*spec
+        
 c        FMEAN1=RL01/(16.*PI**2*(R1*1.e15)**2)
         FMEAN=RL0/(16.*PI**2*(r(i)*1.e15)**2)
         if(nsterm==1) then

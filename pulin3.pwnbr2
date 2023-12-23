@@ -1,8 +1,8 @@
-PWN at 12000 days L=5.0e34 alpha=1.1 + 1.8 Av zone 2 M=19 = O-Ne_Mg     
-Sobolev escapes. fill = 0.2 Inner boundary at 25 km/s                   
-Lum 5e34  No break                                                      
-231124                                                                  
-101                                                                   
+PWN at 12000 days L=2.0e36 alpha=1.1 + 1.8 Av zone 2 M=19 = O-Ne_Mg     
+Sobolev escapes. fill = 0.2 Inner boundary at 111.8 km/s                
+Lum 2.e36  Break at 1.249 keV                                           
+231127                                                                  
+105
 INMODEL                                                                 
 slpul                                                                   
 COMPOSITION                                                             
@@ -17,7 +17,7 @@ MTOT IN GRAM
 FILLING                                                                 
 0.2                                                                     
 MIN_VEL                                                                 
-25. 111.8 158.1 79.05 25. 158.                                          
+158.1 111.8 158.1 79.05 25. 158.                                        
 DIFF ITERATION                                                          
 1                                                                       
 FE II LEVELS                                                            
@@ -29,7 +29,7 @@ ITERATIVE MULTI CA II
 ITERATIVE MULTI FE II                                                   
 PULSAR SPECTRUM                                                         
 1                                                                       
-5.0d34 1.1 0 4.105e3 13.6 1.e4 4e6 0 3                                  
+2.0d36 1.1 1 1.249e3 13.6 1.e4 4e6 0 3                                  
 SHELLS TOTAL NUMBER                                                     
 350                                                                     
 CSHELLS IN CENTER                                                       
