@@ -9,7 +9,7 @@ wind cases, called, pulin3.nstneb and pulin3.pwnneb, are included. To
 chose between these print nstneb (CNS) or pwnneb (PWN) for the first input
 when running the program. The next is the number of shells, currently up to
 350. The temperature limit is set at 100 K. For broken power laws use 
-pwnb1 (break at 4.1 keV) and pwnbr2 (break at 1.25 keV).
+pulin3.pwnb1 (break at 4.1 keV) and pulin3.pwnbr2 (break at 1.25 keV).
 
 The 500 strongest lines are found in strong_lines_xxx.txt
 and the ionization and temperature structure in strucxxx, where xxx is
