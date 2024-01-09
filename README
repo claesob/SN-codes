@@ -5,18 +5,17 @@ This code was used to calculate the line luminosities for the Science
 paper 'Ionizing radiation from a compact object in SN 1987A'. H or He
 are not included in this version. Most of the atmic data is in the
 direectory ATDAT. Input files for the cooling neutron star and pulsar
-wind cases, called, pulin3.nstneb and pulin3.pwnneb, are included. To
-chose between these print nstneb (CNS) or pwnneb (PWN) for the first input
+wind cases, called, pulin3.cnsneb and pulin3.pwnneb, are included. To
+chose between these print csnneb (CNS) or pwnneb (PWN) for the first input
 when running the program. The next is the number of shells, currently up to
 350. The temperature limit is set at 100 K. For broken power laws use 
-pulin3.pwnb1 (break at 4.1 keV) and pulin3.pwnbr2 (break at 1.25 keV).
+pulin3.pwnb1 (break at 4.1 keV) and pulin3.pwnbr2 (break at 1.25 keV), 
+for O-Ne-C pulin3.o_ne_c and for the PWN with filling factor 1.0 pulin3.pwnfi1. 
+All runs are listed in models.txt
 
 The 500 strongest lines are found in strong_lines_xxx.txt
 and the ionization and temperature structure in strucxxx, where xxx is
 the model number (3 digits). These are set in the pulin3-files.
-
-Output in 101 PWN no break, 102 CNS, 103 PWN O-Ne-C-Mg zone, 104 PWN break 4.1 keV, 
-105 PWN break at 1.1 keV.
 
 For further information contact Claes Fransson (claes  at astro.su.se)
 
