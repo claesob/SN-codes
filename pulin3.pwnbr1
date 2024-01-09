@@ -1,8 +1,8 @@
-PWN at 12000 days L=1.0e36 alpha=1.1 + 1.8 Av zone 2 M=19 = O-Ne_Mg     
-Sobolev escapes. fill = 0.2 Inner boundary at 111.8 km/s                
+PWN at 12927 days L=1.0e36 alpha=1.1 + 1.8 Av zone 2 M=19 = O-Ne_Mg     
+Sobolev escapes. fill = 0.1 Inner boundary at 111.8 km/s                
 Lum 1.e36  Break at 4.105 keV                                           
 231127                                                                  
-104                                                                     
+295                                                                     
 INMODEL                                                                 
 slpul                                                                   
 COMPOSITION                                                             
@@ -15,7 +15,7 @@ TEMPLIM
 MTOT IN GRAM                                                            
 22.15D33                                                                
 FILLING                                                                 
-0.2                                                                     
+0.1                                                                     
 MIN_VEL                                                                 
 111.8 158.1 79.05 25. 158.                                              
 DIFF ITERATION                                                          
@@ -29,7 +29,7 @@ ITERATIVE MULTI CA II
 ITERATIVE MULTI FE II                                                   
 PULSAR SPECTRUM                                                         
 1                                                                       
-1.0d36 1.1 1 4.105e3 13.6 1.e4 4e6 0 3                                  
+1.d36 1.1 1 4.105e3 13.6 1.e4 4e6 0 3                                  
 SHELLS TOTAL NUMBER                                                     
 350                                                                     
 CSHELLS IN CENTER                                                       

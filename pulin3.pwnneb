@@ -1,10 +1,8 @@
-PWN at 12000 days L=5.0e34 alpha=1.1 + 1.8 Av zone 2 M=19 = O-Ne_Mg     
-Sobolev escapes. fill = 0.2 Inner boundary at 25 km/s                   
-Lum 5e34  No break                                                      
-231124                                                                  
-101                                                                   
-INMODEL                                                                 
-slpul                                                                   
+PWN at 12000 days L=5.0e34 alpha=1.1  Av zone 2 M=19 = O-Ne_Mg          
+Sobolev escapes. fill = 0.1 Inner boundary at 25 km/s                   
+No break. Fig 4                                                         
+231226                                                                  
+283                                                                     
 COMPOSITION                                                             
 AVCOMP                                                                  
 0 1 19 2  19 M zone 2 = O-Si-S                                          
@@ -15,9 +13,9 @@ TEMPLIM
 MTOT IN GRAM                                                            
 22.15D33                                                                
 FILLING                                                                 
-0.2                                                                     
+0.1                                                                     
 MIN_VEL                                                                 
-25. 111.8 158.1 79.05 25. 158.                                          
+25. 
 DIFF ITERATION                                                          
 1                                                                       
 FE II LEVELS                                                            
@@ -62,4 +60,4 @@ PRINT IONIZATION RATES
 0                                                                       
 PRINT ELECTRON ITERATION                                                
 0                                                                       
-STOP                                                                    
+STOP
