@@ -294,12 +294,6 @@ C
       DIMENSION ABIS(15),ABSUN(12),ABSUNH(12)
       DATA MSUN/1.989E33/
       DATA PI/3.1415926E0/,ELCH/1.60219E-12/,AMU/1.660531E-24/
-c      DATA ABSUN/7.500E-01,2.500E-01,3.981E-03,1.288E-03,1.047E-02,
-c     &      1.660E-03,6.457E-04,9.333E-04,5.128614E-04,2.512E-04,
-c     &      7.943E-05,2.239E-03/
-c     Ferland and Netzer
-c      DATA ABSUN/0.909,.0909,3.36E-4,1.09E-4,6.18E-4,1.0E-4,0.30E-4,
-c     &0.29E-4,0.145E-4,1.E-30,1.E-30,0.236E-4/
 c     NRL test
       DATA ABSUN/0.909,.0909,2.73E-4,0.91E-4,5.45E-4,1.4E-4,0.27E-4,
      &0.27E-4,0.135E-4,1.E-30,1.E-30,0.91E-7/
@@ -465,36 +459,15 @@ C
       common/ns_spec/tot_lum,FL_ns(NE1:NE2),nstemp
       DIMENSION EI(1000),FSH(1000)
       DATA PI/3.1415926E0/,ELCH/1.60219E-12/,AMU/1.660531E-24/
-      DIMENSION RYCRB(10),FNUCRB(10)
-*     Crab Nebula continuum from Davidson and Fesen, 1985 Ann Rev
-*     second vector is F_nu as seen from Earth
-      DATA RYCRB/-5, -3.284, -2.823, -0.959, -0.137, 0.863, 1.863, 
-     & 3.863, 6.176, 6.869 /
-     &  FNUCRB/-20.423, -20.860, -20.677, -22.308, -22.721,
-     & -23.650, -25.192, -27.395, -30.682, -31.780/
 C
 C     FMEAN = MEAN INTENSITY IN ERGS / CM**2 S EV ster
 C
       FMEAN=0.
-      IF(ICS.EQ.1.AND.INITCS.EQ.0.AND.IPULSSP.NE.1) THEN
-        INITCS=1  
-        READ(19,*)JMAX
-        ftot=0.
-        DO J=1,JMAX
-          READ(19,*)EI(J),FSH(J)
-          if(j.gt.1) ftot=ftot+fsh(j)*(ei(j)-ei(j-1))
-        ENDDO
-      ENDIF
       IF(IBLACKB.EQ.1) THEN
         TEFFEV=TEFF/1.1609E4
         IF(E_J/TEFFEV.LT.100.) FMEAN=5.0403E10*E_J**3/(EXP(E_J/TEFFEV)-1.)
       ENDIF
-      IF(IFREEFREE.EQ.1) THEN
-C     FREE-FREE SPECTRUM
-        RL0=RLTOT*EXP(-E_J/EMAX)/EMAX
-        FMEAN=RL0/(4.*PI**2*(R1*1.e15)**2)
-        FMEAN=RL0/(4.*PI**2*R(i)**2)
-      ENDIF
+
       IF(IPULSSP.EQ.1.AND.ICRAB.EQ.0) THEN
 c     PWN SPECTRUM
 
@@ -563,92 +536,12 @@ c     NS Blackbody
         endif
         
       ENDIF
-      IF(ICS.EQ.1.AND.IPULSSP.NE.1) THEN
-C     INTERPOLATE
-        DO J=1,JMAX
-          IF(E_J.LT.EI(J)) THEN
-            FMEAN=FSH(J-1)+(FSH(J)-FSH(J-1))*(E_J-EI(J-1))/
-     &                                        (EI(J)-EI(J-1))
-            GOTO 33
-          ENDIF
-        ENDDO
-33      CONTINUE
-      ENDIF
       IF(INOUT.EQ.1) THEN
         W=0.5*(1.-SQRT(1.-1./RQ**2))
       ELSE
         W=1.
       ENDIF
-C     FACTOR OF 2 ALREADY INCLUDED IN CSREM
-      IF(IAGN.EQ.1.OR.ICRAB.EQ.1) THEN
-        IF(ICRAB.EQ.0) THEN
-C         AGN SPECTRUM
-          IF(IFERNET.EQ.1) THEN
-C           FERLAND & NETZER CALC.
-            U=8.7E8
-            D0=2.2E9
-          ELSEIF(INLR.EQ.1) THEN
-c           nlr test
-            u=3.e10*0.01
-            d0=1.e3
-            IF(E_J.GT.1.E5) THEN
-              FMEAN=0.
-            ELSEIF(E_J.GT.1.) THEN
-               FMEAN=1.602E-12*D0*U*(13.6/e_j)/(4.*pi)
-            ENDIF
-          ELSEIF(IFERMAT.EQ.1) THEN
-C           FERLAND AND MATHEWS BLR SPECTRUM
-            RYD=E_J/13.5987
-*           generic AGN continuum taken from Mathews and Ferland ApJ Dec15 '87
-*           except self absorption at 100 microns, nu**-2.5 below that
-            IF(RYD.GT.1.E-5.AND.RYD.LT.9.12E-4) THEN
-              EC=1.E-5
-              FC=0.1115
-              SLOPE=-2.5
-            ELSEIF(RYD.GT.9.912E-4.AND.RYD.LT.0.206) THEN
-              EC=9.91E-4
-              FC=5.0115
-              SLOPE=1.00
-            ELSEIF(RYD.GT.0.206.AND.RYD.LT.1.743) THEN
-              EC=0.206
-              FC=2.6576
-              SLOPE=0.50      
-            ELSEIF(RYD.GT.1.743.AND.RYD.LT.4.130) THEN
-              EC=1.743
-              FC=2.194
-              SLOPE=1.00
-            ELSEIF(RYD.GT.4.130.AND.RYD.LT.26.84) THEN
-              EC=4.13
-              FC=1.8196
-              SLOPE=3.00      
-            ELSEIF(RYD.GT.26.84.AND.RYD.LT.7350.) THEN
-              EC=26.84
-              FC=-0.6192
-              SLOPE=0.70      
-            ELSEIF(RYD.GT.7350.) THEN
-              EC=7350.
-              FC=-7.34
-              SLOPE=0.0000000001
-            ENDIF      
-          ENDIF
-        ELSEIF(ICRAB.EQ.1) THEN
-C     CRAB SPECTRUM
-          RYD=E_J/13.5987
-          RYDL=LOG10(RYD)
-          DO K=1,10
-            IF(RYDL.GT.RYCRB(K).AND.RYDL.LT.RYCRB(K+1)) THEN
-              FC=FNUCRB(K)
-              SLOPE=(-FNUCRB(K+1) + FNUCRB(K))/(RYCRB(K+1) - RYCRB(K))
-              EC=10.**RYCRB(K)
-              GOTO 32
-            ENDIF
-          ENDDO
-32        CONTINUE
-        ENDIF
-        FMEAN=10.**FC*(EC/RYD)**SLOPE
-        FMEAN=FNORM*FMEAN
-      ENDIF
-C!!   ???
+
       IF(ICS.EQ.1.AND.IPULSSP.NE.1) W=1.
       IF(IPULSSP.eq.1) W=1.
       
@@ -712,32 +605,6 @@ C
       enddo
       return
       end
-
-
-      SUBROUTINE AGNION(INIT,GAMMION,DENS,FSUM)
-C     NORMALIZE THE AGN SPECTRUM TO GIVE A CERTAIN IONIZATION PARAMETER 
-C     GAMMION.
-C     IF INIT = 0 CALCULATE NORMALIZATION FACTOR
-C     IF INIT = 1 CALCULATE IONIZATION PARAMETER
-      IMPLICIT REAL*8(A-H,O-Z)
-      PARAMETER (NE1=-200,NE2=130,NE3=NE2+1)
-      include 'parameters.h'
-      COMMON/INT/FL(2,NE1:NE2),SI(ncr,NE1:NE2),E1(NE1:NE3),E(NE1:NE3)
-      COMMON/FNORM/FNORM
-      COMMON/FRE/NINT,JMIN,JJ
-      DATA PI/3.1415926E0/,ELCH/1.60219E-12/,AMU/1.660531E-24/
-      FSUM=0.
-      DO J=JMIN,JJ
-        IF(E1(J).GT.13.5987) THEN
-          FSUM=FSUM+FMEAN(j,1,E1(J))*(E(J+1)-E(J))/(ELCH*E1(J))
-        ENDIF
-      ENDDO
-      FSUM=4.*PI*FSUM/(3.E10*DENS)
-      IF(INIT.EQ.0) THEN
-        FNORM=GAMMION/FSUM
-      ENDIF
-      RETURN
-      END
 
 
       DOUBLE PRECISION FUNCTION PLANCK(M,E1,TE)
@@ -918,9 +785,8 @@ c                  write(83,9112)k,delta_tau(k)
          IF(TA(J).LE.0.) S(I,J)=0.
          SO(J)=S(I,J)
          IF(IPULSSP.EQ. 0) THEN
-            IF(INOUT.EQ.1.AND.ICS.EQ.0) CALL RADTRANIO(J,TAX,S)      
+c$$$            IF(INOUT.EQ.1.AND.ICS.EQ.0) CALL RADTRANIO(J,TAX,S)      
          ELSE
-c            write(6,*)' to radtranpuls',j,tax
             CALL RADTRANPULS(0,J,TAX,S)      
          ENDIF
          if(i >= 30000) then 
@@ -930,104 +796,6 @@ c            write(6,*)' to radtranpuls',j,tax
  92      format('i,j,e1,dx,den,em,ta,s,tax ',2i5,1pe12.3,10e12.3)
       ENDDO
       RETURN
-      END
-
-      SUBROUTINE DIFF(IMAX,FL0)
-      IMPLICIT REAL*8(A-H,O-Z)
-      include "parameters.h"
-      PARAMETER (NE1=-200,NE2=130,NE3=NE2+1)
-C      *************************************************************
-C     THIS ROUTINE CALCULATES THE DIFFUSE EMISSION FOR GIVEN EMISSION
-C     RATE (PER STERADIAN) AND OPTICAL DEPTHS OF THE DIFFERENT SLABS.
-C     THE METHOD IS THE SAME AS THAT USED BY WILLIAMS (1967).
-C     FL0(MA,J), MA=1,2 IS THE FLUX FROM THE SURFACE AND THE INNER
-C     BOUNDARY. THE OPTICAL DEPTH POINTS ARE CALCULATED FROM THE SUR-
-C     FACE WITH TAU(1,J)=0.
-C      *****
-C      *************************************************************
-      COMMON/FRE/NINT,JMIN,JJ
-      COMMON/DIF/EM(MD,NE1:NE2),TAU(MD,NE1:NE2),TAUTOT(MD,NE1:NE2),
-     &           EMC(MD,NE1:NE2)
-      COMMON/SPECT/TEL,FD(MD,NE1:NE2),F0(NE1:NE2),ipar
-      COMMON/PHY/DEN(MD)
-      COMMON/DXA/DX(MD)
-      COMMON/ELEC/DEL(MD)
-      DIMENSION FL0(2,NE1:NE2)
-      write(6,*)' i diff(' 
-      DO 500 J=JMIN,JJ
-      DO 500 MA=1,2
- 500  FL0(MA,J)=0.
-9478  FORMAT(' DIFF ',5E12.5)
-      DO 400 J=JMIN,JJ
-      DO 410 I=2,IMAX
-      FD(I,J)=0.0E0
-       IMM1=IMAX-1
-      DO 430 K=2,IMM1
-C
-C     CALCULATE THE OPTICAL DEPTH BETWEEN SHELL I AND SHELL K
-C
-      I1=I-1
-      K3=K-1
-      K4=K+1
-      IF(K.GT.I) GOTO 130
-      T2=TAUTOT(I,J)-TAUTOT(K,J)
-      T3=TAUTOT(I,J)-TAUTOT(K-1,J)
-      GOTO 150
- 130  T2=TAUTOT(K-1,J)-TAUTOT(I,J)
-      T3=TAUTOT(K,J)-TAUTOT(I,J)
- 150  CONTINUE
-      IF(DX(K).LE.0.) WRITE(6,*)' DIFX',K,DX(K)
-      IF(DEN(K).LE.0.) WRITE(6,*)' DIFX',K,DEN(K)
-      TA=(TAUTOT(K,J)-TAUTOT(K-1,J))/(DX(K)*DEN(K))
-      TA=ABS(TA)
-      ALB=1.2*0.665E-24*DEL(K)/(1.2*0.665E-24*DEL(K)+TA)
-      ALB=0.
-C
-C     ALBEDO IN THE CASE OF A FINITE ELECTRON SCATTERING DEPTH
-C
-C
-C     SOURCE FUNCTION EVALUATED IN THE MIDDLE BETWEEN K AND K+1
-C
-      IF(TA.LE.0.) WRITE(6,9379)K,J,EM(K,J),TAUTOT(K,J),TAUTOT(K-1,J)
-      IF(TA.LE.0.) EMTA=0.
-9379  FORMAT(' DIFF',2I5,4E11.4)
-      IF(TA.GT.0.) EMTA=EM(K,J)/TA
-C!!   SOURC=ALB*FTOT(K,J)+(1.-ALB)*DEN(K)*EMTA
-      FDIF=(E2(T2)-E2(T3))*SOURC/2.
-      IF(K.EQ.28)WRITE(6,9283)J,EM(K,J),TA,SOURC,FDIF
-      IF(FDIF.GT.1.E15)WRITE(6,9284)I,K,J,EM(K,J),TA,SOURC,FDIF
-9284  FORMAT(' ERRO ',3I4,6E11.4)
-9283  FORMAT(' DI ',I4,6E12.5)
-C
-C     CALCULATE THE FLUX AT THE SURFACE AND AT THE INNER BOUNDARY.
-C
-      IF(I.NE.2) GOTO 480
-      MA=1
-      GOTO 495
- 480  IF(I.NE.IMM1) GOTO 490
-      MA=2
-      E31=0.
-      E32=0.
- 495  IF(T2.LT.100.) E31=(EXP(-T2)-T2*E2(T2))/2.
-      IF(T3.LT.100.) E32=(EXP(-T3)-T3*E2(T3))/2.
-      FLUX=(E31-E32)*SOURC/2.
-C*****MULTPLY BY AN ARBITARY FACTOR 2
-      FLUX=2.*FLUX
-      FL0(MA,J)=FL0(MA,J)+FLUX
- 490  CONTINUE
-      IF(FDIF.LT.1.E15) GOTO 430
-      WRITE(6,998)T2,T3,E2(T2),E2(T3),EM(K,J),TAUTOT(K,J)
-  998 FORMAT(6(2X,E12.3))
-      GOTO 997
-  430 FD(I,J)=FD(I,J)+FDIF
-  410 CONTINUE
-  400 CONTINUE
-      WRITE(6,9387)(FD(28,J),J=JMIN,JJ)
-9387  FORMAT(' FD ',5E12.5)
-      RETURN
-  997 WRITE(6,996)
-  996 FORMAT(1X,'STOPP')
-      STOP
       END
 
 
@@ -1053,13 +821,27 @@ C     E20 = TOL. IN FUNCTION VALUE
       MM=1
       A=A1
       B=B1
-      FB=RAD(B1,XE,IFPOP)
+      if(xel< 0.6) then
+         do i=1,5
+            FB=RAD(B1,XE,IFPOP)
+         enddo         
+      else
+         FB=RAD(B1,XE,IFPOP)
+      endif
       IF(IFPOP.EQ.1) GOTO 4
       mw=0
 C
 C     LEFT BOUNDARY 
 C
- 9    FA=RAD(A1,XE,IFPOP)
+ 9    continue
+      write(6,*)'bis a1 iter',ik,a1
+      if(xel< 0.6) then
+         do i=1,5
+            FA=RAD(A1,XE,IFPOP)
+         enddo
+      else         
+         FA=RAD(A1,XE,IFPOP)
+      endif
       if(ifpop.eq.1) a1=(a1+b1)/2.       
       if(ifpop.eq.1) mw=mw+1
       if(mw.ge.10) goto 4
@@ -1080,7 +862,14 @@ C     IF OK CONTINUE
          a1=0.95*a1
          A=A1
          fa2=fa
-         FA=RAD(A1,XE,IFPOP)
+         write(6,*)'bis a1=0.95*a1',ik,a1
+         if(xel< 0.6) then
+            do i=1,5
+               FA=RAD(A1,XE,IFPOP)
+            enddo
+         else
+            FA=RAD(A1,XE,IFPOP)
+         endif
          IF(IFPOP.EQ.1) GOTO 4
          IFAIL=0
          MM=MM+1
@@ -1091,6 +880,7 @@ C     INCREASE UPPER LIMIT
          b1=1.075*b1
          b=b1
          fb2=fb
+         write(6,*)'bis upper limit increased ',ik,b1
          Fb=RAD(b1,XE,IFPOP)
          IF(IFPOP.EQ.1) GOTO 4
          IFAIL=0
@@ -1104,6 +894,7 @@ C     INCREASE UPPER LIMIT
             b1=a1
             a1=a10*10.**(-(i-1)*delt)
             fb=fa
+            write(6,*)'bis  a2-a4< eps b2-b4<eps',ik,i,a1
             fa=rad(a1,XE,IFPOP)
             if(fa*fb.lt.0.) goto 55
          enddo
@@ -1120,6 +911,7 @@ C     INCREASE UPPER LIMIT
       IF(A1.GT.3500.) A1=0.95*A1
       A=A1
       fa2=fa
+      write(6,*)'bis fb < fa ',ik,a1
       FA=RAD(A1,XE,IFPOP)
       IF(IFPOP.EQ.1) GOTO 4
       IFAIL=0
@@ -1132,7 +924,15 @@ C     INCREASE UPPER LIMIT
       IF(A1.GT.3500.) B1=1.051*B1
       B=B1
       fb2=fb
-      FB=RAD(B1,XE,IFPOP)
+      write(6,*)'bis  b1 fb ',ik,b1
+      if(xel<0.6) then
+         do i=1,5
+            FB=RAD(B1,XE,IFPOP)
+c            write(6,*)'bis b1,xe,fb ',b1,xe,fb
+         enddo
+      else
+         FB=RAD(B1,XE,IFPOP)
+      endif
       IF(IFPOP.EQ.1) GOTO 4
       IFAIL=0
       MM=MM+1
@@ -1148,7 +948,17 @@ C     NEW TEMP. BETWEEN A AND B
       b3=b2
       a2=a
       b2=b
- 10   FM=RAD(TME,XE,IFPOP)
+ 10   CONTINUE
+      write(6,*)'bis  tme ',ik,tme
+      if(xel< 0.6) then
+         do i=1,5
+            FM=RAD(TME,XE,IFPOP)
+            write(6,*)'bis tme,xe,fm ',tme,xe,fm
+         enddo
+      else
+         FM=RAD(TME,XE,IFPOP)
+      endif
+      
       if(ifpop.eq.1) tme=(a+tme)/2.       
       if(ifpop.eq.1) mw=mw+1
       if(mw.ge.10) goto 4
@@ -1161,22 +971,19 @@ c!                  FA=RAD(A,XE,IFPOP)
 c!            ELSE
                   A=TME
                   FA=FM
-c!            ENDIF
+                  write(6,*)'bis  a fa',ik,a,fa
+c     !            ENDIF
             GOTO 3
 C     IF FM HAS A DIFFERENT SIGN FROM FA THEN B=TME
       ELSE
-c!            IF(ABS(FM).GT.ABS(FB)) THEN
-c!                  B=B+ABS(TME-B)
-c!                  FB=RAD(B,XE,IFPOP)
-c!            ELSE
-                  B=TME
-                  FB=FM
-c!            ENDIF
+         B=TME
+         FB=FM
       ENDIF
       if(abs(a2-a3)/a2.lt.eps4.and.abs((fa2-fa)/fa).lt.eps4) then
             a1=0.95*a1
             A=A1
             fa2=fa
+            write(6,*)'bis  a2-a3 / a< <eps4',ik,a1
             FA=RAD(A1,XE,IFPOP)
             IF(IFPOP.EQ.1) GOTO 4
             IFAIL=0
@@ -1188,6 +995,7 @@ C     INCREASE UPPER LIMIT
             b1=1.075*b1
             b=b1
             fb2=fb
+            write(6,*)'bis upper limit increase',ik,b1
             Fb=RAD(b1,XE,IFPOP)
             IF(IFPOP.EQ.1) GOTO 4
             IFAIL=0
@@ -1196,13 +1004,14 @@ C     INCREASE UPPER LIMIT
       endif
       if(abs(a2-a4).lt.1.e-10.and.abs(b2-b4).lt.eps) then
          delt=log10(a1/1.e2)/21.
-            a10=a1
-            do i=1,21
-                  a1=a10*10.**(-(i-1)*delt)
-                  fa=rad(a1,XE,IFPOP)
-                  if(fa*fb.lt.0.) goto 57
-            enddo
-57          a=a1
+         a10=a1
+         write(6,*)'bis a2-a4<1e-10',ik,a2,a4,b2,b4
+         do i=1,21
+            a1=a10*10.**(-(i-1)*delt)
+            fa=rad(a1,XE,IFPOP)
+            if(fa*fb.lt.0.) goto 57
+         enddo
+ 57      a=a1
             goto 1
       endif
 3     IF(ABS(FM).LE.E20*ABS(HEAT)) ICONV=0
@@ -1218,10 +1027,12 @@ C     INCREASE UPPER LIMIT
       IF(MM.GE.20) then 
          if(abs(a-tme).gt.abs(b-tme)) then
             a1=0.99*a1
+            write(6,*)'bis mm>20',ik,a1
             fa=rad(a1,XE,IFPOP)
             a=a1
          else
             b1=1.01*b1
+            write(6,*)'bis mm<=20',ik,a1
             fb=rad(b1,xe,ifpop)
             b=b1
          endif
@@ -1233,58 +1044,6 @@ C     GO ON WITH A NEW TEMPERATURE
       GOTO 1
 4     TE=TME
       IF(ITER.EQ.2) WRITE(6,*)'ITERM'
-      RETURN
-      END
-      
-
-      SUBROUTINE RADTRANIO(J,TAX,S)
-C     ***********************************************************
-C     *****
-C     FOR THE FIRST ITERATION (NITSPH=1) SOLVE THE EQUATION OF TRANSFER
-C         IN THE SCHARMER APPROXIMATION. FOR THE NEXT ITERATIONS
-C         (NITSPH > 1) CALCULATE THE CONTINOUS OPACITIES FOR THE SHELL.
-C     WORKS ONLY INWARD TO OUT
-C     *****
-C     ***********************************************************
-      IMPLICIT REAL*8(A-H,O-Z)
-      include "parameters.h"
-      PARAMETER (NE1=-200,NE2=130,NE3=NE2+1)
-      SAVE
-      COMMON/IND/I
-      COMMON/CINOUT/INOUT,IPULS
-      COMMON/FRE/NINT,JMIN,JJ
-      COMMON/INT/FL(2,NE1:NE2),SI(ncr,NE1:NE2),E1(NE1:NE3),E(NE1:NE3)
-      COMMON/ITSPH/NITSPH
-      COMMON/LITER/N
-      COMMON/DIF/EM(MD,NE1:NE2),TAU(MD,NE1:NE2),TAUTOT(MD,NE1:NE2),
-     &           EMC(MD,NE1:NE2)
-      COMMON/RADIE/R(MD)
-      COMMON/SPECT/TEL,FD(MD,NE1:NE2),F0(NE1:NE2),ipar
-      real*8 jmean
-      COMMON/DTAU/JMEAN(NE1:NE2)
-      DIMENSION S(MD,NE1:NE2)
-      DATA PI/3.1415926E0/,ELCH/1.60219E-12/,AMU/1.660531E-24/
-      write(6,*)' i radtranio '
-C     ***********************************************************
-C     *****
-C     USE THE SCHARMER APRROX. IN THE FIRST ITERATION
-C     *****
-C     ***********************************************************
-      IF(NITSPH.LE.1) THEN
-C     BARBIER RELATION
-C
-C     FOR SECOND AND HIGHER ITERATIONS THE DIFFUSE FLUX IS 
-C     ALREADY CALCULATED
-C     MEAN INTENSITY = PRIMARY FLUX + DIFFUSE FLUX
-C
-            IF(IPULS.EQ.1) THEN
-                  FPRIM=EXP(-TAUTOT(I,J))*FMEAN(j,1,E1(J))
-            ELSE
-                  FPRIM=0.
-            ENDIF
-            FL(2,J)=FPRIM+FD(I,J)
-      ENDIF
-      JMEAN(J)=FL(2,J)
       RETURN
       END
 
@@ -1349,92 +1108,6 @@ C
       RETURN
       END
 
-      SUBROUTINE RADTRANOIq(J,TAX,S)
-C     ***********************************************************
-C     *****
-C     FOR THE FIRST ITERATION (NITSPH=1) SOLVE THE EQUATION OF TRANSFER
-C         IN THE OUTWARD ONLY APPROXIMATION. FOR THE NEXT ITERATIONS
-C         (NITSPH > 1) CALCULATE THE CONTINOUS OPACITIES FOR THE SHELL.
-C     WORKS BOTH IN OUT AND OUT IN
-C     HERE OUT TO IN
-C     USED FOR ALL CS-INT. CALC.
-C     *****
-C     ***********************************************************
-      IMPLICIT REAL*8(A-H,O-Z)
-      include "parameters.h"
-      PARAMETER (NE1=-200,NE2=130,NE3=NE2+1)
-      SAVE
-      COMMON/IND/I
-      COMMON/CINOUT/INOUT,IPULS
-      COMMON/CICS/RSHOCK,ics
-      COMMON/FRE/NINT,JMIN,JJ
-      COMMON/INT/FL(2,NE1:NE2),SI(ncr,NE1:NE2),E1(NE1:NE3),E(NE1:NE3)
-      COMMON/ITSPH/NITSPH
-      COMMON/LITER/N
-      COMMON/DIF/EM(MD,NE1:NE2),TAU(MD,NE1:NE2),TAUTOT(MD,NE1:NE2),
-     &           EMC(MD,NE1:NE2)
-      COMMON/RADIE/R(MD)
-      COMMON/SPECT/TEL,FD(MD,NE1:NE2),F0(NE1:NE2),ipar
-      real*8 jmean
-      COMMON/DTAU/JMEAN(NE1:NE2)
-      DIMENSION S(MD,NE1:NE2)
-      DATA PI/3.1415926E0/,ELCH/1.60219E-12/,AMU/1.660531E-24/
-      write(6,*)' i radtranoiq '
-C
-C     PRIMARY FLUX
-C
-      IF(IPULS.EQ.1.AND.ICS.NE.1) THEN
-            FPRIM=EXP(-TAUTOT(I,J))*FMEAN(j,1,E1(J))
-      ELSEIF(ICS.EQ.1.AND.INOUT.EQ.0) THEN
-C           ASSUMES ABSORPTION OF FLUX FROM SHELL BY THE GAS INTERIOR
-C             TO R.
-C!!           NOT GOOD FOR SECOND AND HIGHER ITERATIONS
-            FPRIM=E2(TAUTOT(I,J))*FMEAN(j,1,E1(J))
-      ELSE
-            FPRIM=0.
-      ENDIF
-C     ***********************************************************
-C     *****
-C
-C     FOR SECOND AND HIGHER ITERATIONS THE DIFFUSE FLUX IS 
-C     ALREADY CALCULATED
-C     MEAN INTENSITY = PRIMARY FLUX + DIFFUSE FLUX
-c!    IF TAU > 1 USE J = SOURCE FCN.
-C     *****
-C     ***********************************************************
-      IF(N.EQ.1) THEN
-      FL(2,J)=0.
-      IF(TAUTOT(I,J).GT.0.001.AND.N.EQ.1)  
-     &                  FL(2,J)=S(I,J)*(1.-exp(-tautot(i,j)))
-c!!!!!!!!!!
-c      goto 1234
-            IF(TAX.LT.10.) THEN      
-                  FL(2,J)=0.
-                  TAUIK=0.
-                  TAUIKM1=0.
-                  DO IK=I,2,-1
-C!!   ASSUME NO DILUTION AND THAT THERE IS NO ABSORPTION INTERNAL TO 
-C           RADIUS I.
-                        TAUIK=TAUIK+TAU(IK,J)
-                        TAUIKM1=TAUIK-TAU(IK,J)
-C
-c     OUTWARD ONLY APPROX ( TWICE AS MUCH AS IF INTERNAL ABSORPTION)
-C
-                        FL(2,J)=S(IK,J)*(-E2(TAUIK)+E2(TAUIKM1))
-     &                                    +FL(2,J)
-                  ENDDO
-800               CONTINUE
-            ELSE
-                  FL(2,J)=S(I,J)
-            ENDIF
-1234  continue
-            FL(2,J)=FL(2,J)+FPRIM
-      ELSE
-            FL(2,J)=FPRIM+FD(I,J)
-      ENDIF
-      JMEAN(J)=FL(2,J)
-      RETURN
-      END
 
       SUBROUTINE RADTRANPULS(IH,J,TAX,S)
 C     ***********************************************************

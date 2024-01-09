@@ -1,12 +1,4 @@
-C     CIRCUMSTELLAR:
-C     SET ICS = 1
-C         INOUT = 0
-C     SPECIFY RSHOCK, MTOT
-C     FOR REVERSE SHOCK 
-C     ICS = 1
-C     INOUT=1
-C     IREV=1
-C     
+c Main programC     
 C***********************************************************************
 C**********
       IMPLICIT REAL*8(A-H,O-Z)
@@ -181,7 +173,6 @@ c data for recomb. of Si, S and Ar
       call recomb_adas
 c call recomb data from Badnell et al for Na, Mg, Al, Si, P sequencies      
       call badnell_et_al
-c      call badnell_dr_fits      
 C     DEFAULT PARAMETERS 
       MAX=299
       ICEN=35
@@ -213,7 +204,7 @@ C     DEFAULT PARAMETERS
       IOMUL=1
       ICAMUL=1
       IFEMUL=1
-      iagn=0
+c      iagn=0
       nmax=1
       TOTCOLUMN=1.d33
       MNI56=0.07
@@ -309,10 +300,6 @@ C         SIMPLE MULTILEVEL CALCN. FOR FE II
         ELSEIF(LABEL(1:18).EQ.'NO MULTI FOR FE II') THEN
 C         SIMPLE MULTILEVEL CALCN. FOR FE II
           IFEMUL=-1
-        ELSEIF(LABEL(1:5).EQ.'DECON') THEN
-C         AGN DENSITY AT INNER BOUNDARY
-          READ(99,*)DECON
-          ICDEN=1
         ELSEIF(LABEL(1:6).EQ.'IONPAR') THEN
 C         AGN IONIZATION PARAMETER
           READ(99,*)GAMMION
@@ -327,15 +314,6 @@ C         PHOTOSPHERIC RADIUS IN CM
         ELSEIF(LABEL(1:11).EQ.'PULSAR SPEC') THEN
 C         PULSAR SPECTRUM
           READ(99,*)IPULSSP
-        ELSEIF(LABEL(1:4).EQ.'CRAB') THEN
-C         CRAB SPECTRUM
-          ICRAB = 1
-        ELSEIF(LABEL(1:14).EQ.'FERLAND NETZER') THEN
-C         FERLAND & NETZER AGN SPECTRUM
-          READ(99,*)IFERNET
-        ELSEIF(LABEL(1:15).EQ.'FERLAND MATHEWS') THEN
-C         FERLAND & MATHEWS AGN SPECTRUM
-          READ(99,*)IFERMAT
         ELSEIF(LABEL(1:3).EQ.'NLR') THEN
 C         NLR AGN SPECTRUM
           READ(99,*)INLR
@@ -357,10 +335,6 @@ C     Averaged SHELL COMP from Woosley & Heger 2007 15 of 19 M models
 c      write(0,*)' Abundance zone? Averaged abundaces=1, Zone 1=Si-S-Ar,'
 c     &     ,' 2 = O-Si-S, 3 = O-Ne-Mg'
              read(99,*)rm_abun,avabund,zams,zone
-          ELSEIF(LABEL(1:5).EQ.'INPUT') THEN
-C           SPECIFY CHEMICAL COMPOSITION
-            INPUTCOMP=1
-            READ(99,*)(ABIN(L),L=1,12)      
           ENDIF
         ELSEIF(LABEL(1:3).EQ.'VEL') THEN
 C         EXPANSION VELOCITY AT THE OUTER BOUNDARY IN CM/S
@@ -371,18 +345,6 @@ C         NO BACKGROUND CONT. IN LINE EXC.
         ELSEIF(LABEL(1:6).EQ.'OUTPUT') THEN
 C         READ PARAMETERS CONTROLLING THE OUTPUT
           READ(99,*)IOSHELL,IORAD1,IORAD2,IOFLUX
-        ELSEIF(LABEL(1:10).EQ.'PRINT SPEC') THEN
-C         PRINT SPECTRUM FOR EACH ZONE
-          READ(99,*)IOSPEC
-        ELSEIF(LABEL(1:9).EQ.'DEPARTURE') THEN
-C         PRINT DEPARTURE COEFFICIENTS RATHER THEN NUMBER FRACTIONS
-          IDEP=1
-        ELSEIF(LABEL(1:9).EQ.'PRINT LEV') THEN
-C         PRINT LEVEL INFORMATION FOR H I AND He I
-          READ(99,*)IOLEVEL
-        ELSEIF(LABEL(1:11).EQ.'PRINT EMISS') THEN
-C         PRINT EMISSIVITIES FOR EACH ZONE
-          READ(99,*)IOEMISS
         ELSEIF(LABEL(1:12).EQ.'PRINT TERMAL') THEN
 C         PRINT COOLING AND HEATING FOR EACH ITERATION
           READ(99,*)IOTERM
@@ -393,12 +355,6 @@ C         PRINT IONIZATION RATES FOR EACH ZONE
 C         PRINT IONIZATION RATES FOR EACH ZONE
           READ(99,*)IOELITER
         ENDIF
-C       CONSTANT PRESSURE IPRESS = 1
-        IF(LABEL(1:3).EQ.'PRE') IPRESS=1
-C       CONSTANT DENSITY IDEN = 1
-        IF(LABEL(1:3).EQ.'DEN') IDEN=1
-C       AGN SPECTRUM 
-        IF(LABEL(1:3).EQ.'AGN') IAGN=1
 C       PULSAR 
         IF(LABEL(1:3).EQ.'PUL') THEN
 C         SPECTRUM PARAMETERS FOR PULSAR AND FREE FREE SPECTRA
@@ -412,14 +368,6 @@ C
 C       IPULS=0 ; only low ionized ions   
 C       IPULS=1 ; higher ionized ions included
 C
-        IF(LABEL(1:3).EQ.'PUL') IPULS=1
-C       CIRCUMSTELLAR:
-C         SET ICS = 1
-C         INOUT = 0
-C         SPECIFY RSHOCK, MTOT
-C       FOR REVERSE SHOCK 
-C         ICS = 1
-C         INOUT=1
         IREV=0
         IF(LABEL(1:3).EQ.'CS ') ICS=1
         IF(LABEL(1:3).EQ.'REV') THEN
@@ -432,14 +380,6 @@ C       STATIC MEDIUM
         IF(LABEL(1:3).EQ.'STA') ISTAT=1
 C       SOBOLEV APP. 
         IF(LABEL(1:3).EQ.'SOB') ISOBOL=1
-C       ISPH=INDEX SPECIFYING WHETER A SPHERICAL (ISPH=1)
-C         OR PLANE (ISPH=0) GEOMETRY SHOULD BE USED
-        IF(LABEL(1:3).EQ.'SPH') ISPH=1
-C       IPAR=INDEX SPECIFYING WHETHER A PARALLELL (IPAR=1) OR ISOTROPIC
-C       BEAM OF IONIZING RAD. SHOULD BE USED.
-        IF(LABEL(1:3).EQ.'PAR') IPAR=1
-C       IF IUVBLANK = 1 NO UV-CONTINUUM BELOW 3000 A
-        IF(LABEL(1:3).EQ.'UVB') IUVBLANK=1
         IF(LABEL(1:4).EQ.'STOP') GOTO 33
       ENDDO
 33    CONTINUE
@@ -501,16 +441,6 @@ C       SHOCK RADIUS IN 1E15 CM
 C     RADIUS OF THE OUTER BOUNDARY IN CM
       RMAX=VEXP*TIME
       IF(RIN.LT.R1) RIN=R1+1.E-5
-C
-      IF(ICS.EQ.1.AND.IPULSSP.NE.1) THEN
-        read(19,*)mtot
-c       temperature of reverse and c-s shocks
-        read(19,*)terev,tecs
-        read(19,*)revmass
-        read(19,*)EJDENS
-      ENDIF
-      IF(IAGN.EQ.1) MTOT=1.D66
-      IF(IAGN.EQ.1) REVMASS=1.D66
       MSUN=MTOT/SOLMA
       RMASS=MTOT/SOLMA
 C     DELM = INITIAL MASS INTERVAL
@@ -1274,15 +1204,10 @@ C     ***********************************************************
          B1OLD=B1
          NIPOP=0
          COLOLD=COLUMN
-C     H DOMINATED MODELS
-C     IF(INOUT.EQ.0)DELRM=-DELM
+
 C     MIXED MODELS
          IF(INOUT.EQ.0.AND.I.EQ.2) DELRM=-DMINIT
-c     IF(AB(1).GT.0.5) DELRM=-0.2
-c     IF(I.LE.(ICEN+1))DELRM=-.5/FLOAT(ICEN)
-c     IF(I.LE.(ICEN+1).AND.INOUT.EQ.1)DELRM=RMCEN/FLOAT(ICEN)
-c     IF(INOUT.EQ.1.AND.TAUTOT(I-1,2).LT.0.001) 
-c     &                              delrm=10.**((i-1)*0.025)*dminit
+
          IF(INOUT.EQ.1.AND.I.EQ.2) DELRM=DMINIT
          RM0=RM(1)
          IDEL=0
@@ -1400,9 +1325,6 @@ c test
 c!!! test only. below works.,
 c     delrm=dmax1(0.025*rm(i-1),delrm)
          if(del(i-1) > 1.1.or.i==2) then
-c     933 etc
-c         if(del(i-1) > 1.05.or.i==2) then
-c         if(del(i-1) > 1.0.or.i==2) then
             delrm=dmax1(0.03*rm(i-1),delrm)
 c     test
             delrm_new=dmax1(0.04*rm(i-1),delrm)          
@@ -1461,17 +1383,6 @@ C     RADIUS AND DENSITY AT MASS = RM(I)
          DR(I)=DRA(I)*R15*1.E15
          DXI=DR(I)
          RCGS=1.E15*R(I)*R15
-         IF(ISTRU.EQ.0) GOTO 3828
-c!!   don't do this
-         IF(ICDEN.EQ.1.AND.I.LT.3) DENR=DECON 
-         IF(IREV.EQ.1.AND.I.EQ.2) THEN
-            DENR=DENREV
-         ENDIF
-C     CONSTANT PRESSURE
-         IF(IPRESS.EQ.1.AND.I.GE.3) DENR=DEN(2)*(1.+DEL(2))*TE(2)/
-     &        ((1.+DEL(I-1))*TE(I-1))
-c     const dens
-         IF(IDEN.EQ.1.AND.I.GE.3) DENR=DEN(2)
  3828    DECGS=DENR*AMU*AMEAN
          DENQ=DENR
          DEN1=DENR
@@ -1968,76 +1879,12 @@ C
             goto 9365
          endif
          IF(TE(I).LT.100.) GOTO 3288
-c         IF(TE(I).LT.50.) GOTO 3288
-C     IF(NMAX.NE.0) GOTO 700
-C     STOP
+
          IF(TE(I).GT.9.E3) GOTO 700
          MQW=MQW+1
 C     IF(MQW.GE.MQMAX) GOTO 9365
- 700  CONTINUE 
-C     ***********************************************************
-C     *****
-C     SOLVE THE EQUATION OF TRANSFER FOR THE DIFFUSE EMISSION
-C     *****
-C     ***********************************************************
- 9365 IF(ISPH.EQ.0) CALL DIFF(IMAX,FL0)
-      DO I=1,IMAX
-         TEINT(I)=TE(I)
-      enddo
-2727  FORMAT(' TI ',5E10.4)
-      IF(N.EQ.NMAX.OR.IMAX.EQ.2) GOTO 7327
-      DO J=JMIN,JJ
-         CALL SPHTRP(IMAX,J,R15,TEINT,RM,IMAXP)
-      enddo
-      write(6,*)'sph',(ts2-ts1)
-      WRITE(6,2727)TEINT
-7327  MAX=IMAXP
-C
-C     SAVE IMAX, RM, AND DIFFUSE FLUXES FD  FOR THIS ITERATION ON UNIT
-C        14 = FILE "UTIN"
-C
-      IF(IMAX.eq.2) THEN
-c      IF(IMAX.NE.2) THEN
-      WRITE(6,*)' FLUXES WRITTEN ON FILE UTIN'
-      REWIND 14
-      WRITE(14)N
-      WRITE(14)IMAXP
-      WRITE(14)RM
-      WRITE(14)FD
-      WRITE(6,9282)(RM(IK),IK=1,IMAX)
-      ENDIF
-9282  FORMAT(' RM ',5E11.4)
-C     PRINT OUTGOING FLUX ON FILE 31
-c      DO J=JMIN,JJ
-c        WRITE(31,9128)J,E1(J),E(J),EDDFLUX(J)
-c      ENDDO
-9128  FORMAT(I5,3E13.5)
-C     SAVE TOTAL COLUMN DENSITY (DIVIDED BY SQRT(T) AND A) FOR ESCAPE PROB.
-      DO K=1,100
-        COLTOTT(K)=COLTOT(K)
-      ENDDO
-      DO K=1,5
-        DO I=1,NL
-            COLHVTT(K,I)=COLHVT(K,I)
-        ENDDO
-      ENDDO
-C     ***********************************************************
-C     *****
-C     CALCULATE LINE PROFILES
-C     *****
-C     ***********************************************************
-      R1CGS=R15*1.E15
-      CALL ATDATFE
-      NI=1
-      DO 221 I=2,NFEII
-      DO 222 J=1,I-1
-      IF (AQ(I,J).GT.0.)THEN
-      WLI(81+NI)=WL(I,J)
-      NI=NI+1
-      ENDIF
- 222  CONTINUE
- 221  CONTINUE      
-
+ 700  CONTINUE
+ 9365 continue
 C     ***********************************************************
 C     *****
 C     CALCULATE THE TOTAL ENERGY OF THE DIFFUSE EMISSION ABOVE 13.6
