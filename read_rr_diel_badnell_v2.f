@@ -47,11 +47,171 @@ c interpoltes total recombination rate and direct recob. to 10 lowest levels =  
                   algs(iel,ion,j,n)=0.
                enddo
             enddo
-            if(iel==14.or.iel==16.or.iel==18) then
+            if(iel==8.or.iel==10.or.iel==14.or.iel==16.or.iel==18) then
                irec=0
                do m=1,3
-                  if(iel==14) then
+                  if(iel==8) then
                      npmax=1
+                     if(ion==2) then
+                        irec=1
+                        if(m==1) then
+                           fl='./ATDAT/o1ic22.dat'
+                        elseif(m==2) then
+                           fl='./ATDAT/o1ic23.dat'
+                        elseif(m==3) then
+                           fl='./ATDAT/o1ic223.dat'            
+                        endif
+                     elseif(ion==3) then
+                        irec=1
+                        if(m==1) then
+                           fl='./ATDAT/o2ic22.dat'
+                        elseif(m==2) then
+                           fl='./ATDAT/o2ic23.dat'
+                        elseif(m==3) then
+                           goto 22
+                        endif
+                     elseif(ion==4) then
+                        irec=1
+                        if(m==1) then
+                           fl='./ATDAT/o3ic22.dat'
+                        elseif(m==2) then
+                           fl='./ATDAT/o3ic23.dat'
+                        elseif(m==3) then
+                           goto 22
+                        endif
+                     elseif(ion==5) then
+                        irec=1
+                        npmax=0
+                        if(m==1) then
+                           fl='./ATDAT/o4ic12.dat'
+                        elseif(m==2) then
+                           fl='./ATDAT/o4ic23.dat'
+                        elseif(m==3) then
+                           goto 22
+                        endif
+                     elseif(ion==6) then
+                        irec=1
+                        npmax=0
+                        if(m==1) then
+                           fl='./ATDAT/o5ic12.dat'
+                        elseif(m==2) then
+                           fl='./ATDAT/o5ic23.dat'
+                        elseif(m==3) then
+                           goto 22
+                        endif
+                     elseif(ion==7) then
+                        irec=1
+                        npmax=0
+                        if(m==1) then
+                           fl='./ATDAT/o6ic12.dat'
+                        elseif(m==2) then
+                           fl='./ATDAT/o6ic23.dat'
+                        elseif(m==3) then
+                           goto 22
+                        endif
+                     elseif(ion==8) then
+                        irec=1
+                        npmax=0
+                        if(m==1) then
+                           fl='./ATDAT/o7ic12.dat'
+                        elseif(m==2) then
+                           goto 22
+                        elseif(m==3) then
+                           goto 22
+                        endif                       
+                     endif
+                  elseif(iel==10) then
+                     npmax=1
+                     if(ion==2) then
+                        irec=1
+                        if(m==1) then
+                           fl='./ATDAT/ne1ic22.dat'
+                        elseif(m==2) then
+                           fl='./ATDAT/ne1ic23.dat'
+                        elseif(m==3) then
+                           goto 22
+                        endif
+                     elseif(ion==3) then
+                        irec=1
+                        if(m==1) then
+                           fl='./ATDAT/ne2ic22.dat'
+                        elseif(m==2) then
+                           fl='./ATDAT/ne2ic23.dat'
+                        elseif(m==3) then
+                           goto 22
+                        endif
+                     elseif(ion==4) then
+                        irec=1
+                        if(m==1) then
+                           fl='./ATDAT/ne3ic22.dat'
+                        elseif(m==2) then
+                           fl='./ATDAT/ne3ic23.dat'
+                        elseif(m==3) then
+                           goto 22
+                        endif
+                     elseif(ion==5) then
+                        irec=1
+                        npmax=0
+                        if(m==1) then
+                           fl='./ATDAT/ne4ic22.dat'
+                        elseif(m==2) then
+                           fl='./ATDAT/ne4ic23.dat'
+                        elseif(m==3) then
+                           goto 22
+                        endif
+                     elseif(ion==6) then
+                        irec=1
+                        npmax=0
+                        if(m==1) then
+                           fl='./ATDAT/ne5ic22.dat'
+                        elseif(m==2) then
+                           fl='./ATDAT/ne5ic23.dat'
+                        elseif(m==3) then
+                           goto 22
+                        endif
+                     elseif(ion==7) then
+                        irec=1
+                        npmax=0
+                        if(m==1) then
+                           fl='./ATDAT/ne6ic12.dat'
+                        elseif(m==2) then
+                           fl='./ATDAT/ne6ic23.dat'
+                        elseif(m==3) then
+                           goto 22
+                        endif
+                     elseif(ion==8) then
+                        irec=1
+                        npmax=0
+                        if(m==1) then
+                           fl='./ATDAT/ne7ic12.dat'
+                        elseif(m==2) then
+                           fl='./ATDAT/ne7ic23.dat'
+                        elseif(m==3) then
+                           goto 22
+                        endif                       
+                     elseif(ion==9) then
+                        irec=1
+                        npmax=0
+                        if(m==1) then
+                           fl='./ATDAT/ne8ic12.dat'
+                        elseif(m==2) then
+                           fl='./ATDAT/ne8ic23.dat'
+                        elseif(m==3) then
+                           goto 22
+                        endif                       
+                     elseif(ion==10) then
+                        irec=1
+                        npmax=0
+                        if(m==1) then
+                           fl='./ATDAT/ne9ic12.dat'
+                        elseif(m==2) then
+                           goto 22
+                        elseif(m==3) then
+                           goto 22
+                        endif                       
+                     endif
+                  elseif(iel==14) then
+                     npmax=1                     
                      if(ion==2) then
                         irec=1
                         if(m==1) then

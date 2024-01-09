@@ -125,12 +125,10 @@ C     INPUT PARAMETERS IN THIS FILE
       MODNRSTR(2:2)=CHAR(MN2+48)
       MODNRSTR(3:3)=CHAR(MN3+48)
 
-c      write(0,*)'modnr ',modnr
 C     FILE1= GENERAL OUTPUT FILE = UNIT 6
       FILE1(1:3)='slt'
       FILE1(4:6)=MODNRSTR(1:3)
       
-c      write(0,*)'output file',file1
       OPEN(6,FILE=FILE1)
       rewind(99)
       do i=1,inmax
@@ -145,12 +143,8 @@ c      write(6,*)'rm_abun,avabund,zams,zone ',rm_abun,avabund,zams,zone
  9378 format('Mass for abundances, rm (1.76, 1.85, 1.95, 2.0): ',1pe12.3)
       do i=1,1000
          read(99,932,end=323)dum(i)
-c         write(6,932)dum(i)
-c         write(0,932)dum(i)
  932     format(a100)
       enddo
-c      write(6,*)' '
-c      write(6,*)'End of input file'
  323  lmax=i-1
       rewind(99)
 
@@ -186,7 +180,8 @@ c Auger data
 c data for recomb. of Si, S and Ar      
       call recomb_adas
 c call recomb data from Badnell et al for Na, Mg, Al, Si, P sequencies      
-      call badnell_et_al      
+      call badnell_et_al
+c      call badnell_dr_fits      
 C     DEFAULT PARAMETERS 
       MAX=299
       ICEN=35
@@ -194,7 +189,7 @@ C     DEFAULT PARAMETERS
       A1IN=3000.
       B1IN=10000.
       NFEII=116
-      tday=12000.
+      tday=12927.
       TOTCOLUMN=1.E33
       RIN=1.E14/1.E15
       FILLING=1.
@@ -236,7 +231,6 @@ C         OR NOT. QSO>0 : NO BACKGROUND RADIATION FIELD, QSO<0 :
       DO K=1,100
         READ(99,9)LABEL
  9      FORMAT(A20)
-c        write(0,*)k,label
         IF(LABEL(1:7).EQ.'INMODEL') THEN
           READ(99,9899)INMOD
         ELSEIF(LABEL(1:5).EQ.'INOUT') THEN
@@ -431,7 +425,6 @@ C         INOUT=1
         IF(LABEL(1:3).EQ.'REV') THEN
           IREV=1
           READ(99,*)TECOOL
-          write(6,*)'icden,irev c ',icden,irev
         ENDIF
 C       ONLY LOW IONIZATION IONS INCLUDED: ILOWION = 1
         IF(LABEL(1:3).EQ.'LOW') ILOWION=1
@@ -450,30 +443,12 @@ C       IF IUVBLANK = 1 NO UV-CONTINUUM BELOW 3000 A
         IF(LABEL(1:4).EQ.'STOP') GOTO 33
       ENDDO
 33    CONTINUE
-C     READ MODEL FROM THIS FILE
-      OPEN(12,FILE=INMOD)
-      IF(IAGN.EQ.1) THEN
-        ICS=1
-        IREV=1
-        write(6,*)'icden,irev b ',icden,irev
-      ENDIF
       IPAR=1
       ISPH=1
       IF(ISTAT.EQ.0.AND.ISOBOL.EQ.0) WRITE(0,*)' Sobolev or static?'
       IF(ISTAT.EQ.0.AND.ISOBOL.EQ.0) STOP
       IF(INOUT.EQ.2) WRITE(0,*)' You must specify in or out!'
       IF(INOUT.EQ.2) STOP
-      WRITE(6,93)INMOD
-93    FORMAT(' INMOD = ',A72)
-      IF(IPRESS.EQ.1)  WRITE(6,*)' Constant pressure'
-      IF(IDEN.EQ.1)  WRITE(6,*)' Constant density'
-      IF(IAGN.EQ.1) WRITE(6,*)' AGN-spectrum'
-      IF(ICS.EQ.1) WRITE(6,*)' Circumstellar interaction'
-      IF(IREV.EQ.1) WRITE(6,*)' Reverse shock'
-      IF(ILOWION.EQ.1) WRITE(6,*)' Only low ionization ions'
-      IF(ISTAT.EQ.1) WRITE(6,*)' Static geometry'
-      IF(ISOBOL.EQ.1) WRITE(6,*)' Sobolev line transfer'
-      IF(IUVBLANK.EQ.1) WRITE(6,*)' UV-blanking!'
 C     ************************************************************
 C     *****
 C     ENERGY INTERVALS
@@ -485,9 +460,6 @@ C     ************************************************************
         IF(E(J).LT.ENMIN) JMIN=J+1
         IF(E(J).LT.ENMAX) JJ=J+1
       ENDDO
-c      WRITE(6,*)'JMIN, JJ,     ENMIN,     ENMAX'
-c      WRITE(6,92)JMIN,JJ,ENMIN,ENMAX
-92    FORMAT(2I5,1PE12.3,E12.3)
 C     NINQ= NUMBER OF INTERVALS -1 BETWEEN 13.6 AND 15.3 EV
       NINQ=2
       JJ=jj+NINQ
@@ -778,12 +750,6 @@ C     ***********************************************************
       write(0,*)' max number of shells?'
       read(5,*)iqmax
       INI=0
-c     PWN velocity at boundary in km/s; used only to set distance to inner shell
-
-c for CNS model in paper      
-c      min_vel=65.
-c$$$c for PWN model in paper      
-c     min_vel=25.
 
 C
 C     ELECTRON DENSITY EXCEPT FOR H
@@ -927,14 +893,6 @@ C
          write(6,*)'rin,r1,ri15,rin15 ',rin,r1,ri15,rin15
       ENDIF
       
-c$$$      IF(IREV.EQ.1) THEN
-c$$$        ICDEN=1
-c$$$        DECON=EJDENS/(1.67E-24*AMEAN)
-c$$$C!      ASSUMES THAT THE COOLING SHELL IS IN PRESSURE BALANCE AND 
-c$$$C         COOLS TO TECOOL
-c$$$        densfac=terev/TECOOL
-c$$$        DECON=4.*DENSFAC*DECON
-c$$$      ENDIF
       IF(ICDEN.EQ.1) THEN
         DENR=DECON
         DENR=DENR/FILLING
@@ -1020,29 +978,7 @@ C     ***********************************************************
 C     FL=MEAN INTENSITY PER UNIT OF ENERGY (ERG/(CM**2 STER EV))
       IF(IPAR.EQ.1) GEOM=4.
       IF(IPAR.NE.1) GEOM=2.
-      write(6,*)' IPAR,GEOM,IPULSSP,ICRAB',ipar,geom,ipulssp,icrab
-      IF(IAGN.EQ.1.OR.ICRAB.EQ.1) THEN  
-         FNORM=1.
-C     NORMALIZE THE SPECTRUM TO A CERTAIN IONIZATION PARAMETER
-         IF(IPULSSP.EQ.0) THEN
-            CALL AGNION(0,GAMMION,DECON,FSUM)
-         ENDIF
-C     NORMALIZE A CRAB SPECTRUM TO A GIVEN TOTAL LUM.
-         IF(ICRAB.EQ.1.AND.IPULSSP.EQ.1) THEN
-            V1=0.
-            DO J=JMIN,JJ
-               IF(E(J).GE.EMIN.AND.E(J).LE.EMAX) THEN
-                  V1=V1+FMEAN(j,1,E1(J))*(E(J+1)-E(J))
-               endif
-            ENDDO
-            V=1.E30*4.*GEOM*PI**2.*(R15*R(1))**2.*V1
-            FNORM=RLTOT/V
-            write(6,9178)r15*r(1),geom,v1,v,fnorm
- 9178       format('r15,r15*r(1),geom,v1,v,fnorm',1pe12.3,10e12.3)
-         ENDIF
-C     CHECK IONIZATION PARAMETER
-         IF(DECON.NE.0.) CALL AGNION(1,GAMMION,DECON,FSUM)
-      ENDIF
+c      write(6,*)' IPAR,GEOM,IPULSSP,ICRAB',ipar,geom,ipulssp,icrab
       totl=0.
       DO J=JMIN,JJ
 C
@@ -1060,7 +996,6 @@ C
         F0(J)=FL(1,J)
       ENDDO
       write(6,9362)totl
-c      write(0,9362)totl
  9362 format('Total ionizing luminosity 13.6 - 20keV ',1pe12.3)
 
 c      stop
@@ -1097,7 +1032,6 @@ C     WRITE(6,525)
  7779 FORMAT(1X,'IONIZATION PARAMETER: U1(13.6-54 EV)=',1PE13.6
      &,' U2( >54 EV)=',E13.6)
 
-C     WRITE(6,525)
 C
 C     ESTIMATE THE INITIAL STEP IN MASS (IN SOLAR UNITS)
 C
@@ -1108,12 +1042,11 @@ C     HE III REC AT 2.E4 K
       ALREC=9.08E-13
       DMINITHE=VVP*AMEAN*AMU/(ALREC*DEN(1))
       DMINIT=DMINIT*DMIN1(DMINITH,DMINITHE)/SOLMA
-      WRITE(6,9278)DMINIT,DMINITH,DMINITHE
+c      WRITE(6,9278)DMINIT,DMINITH,DMINITHE
 c!!!  new
       dminit=0.00001*dminit
       dminit=1.e-11
-      WRITE(6,9278)DMINIT
-9278  FORMAT(' INITIAL MASS STEP ',1PE12.4,5E12.4)
+
 C     CALCULATE FLUX
       DO J=JMIN,JJ
         CALL RADTRANPULS(1,J,TAU(I,J),S)
@@ -1142,7 +1075,6 @@ c Luminosity between these energies
       VV=1.E30*4.*GEOM*PI*PI*(R15*R(1))**2.*VV
       Vion=1.E30*4.*GEOM*PI*PI*(R15*R(1))**2.*Vion
       V13p6_1e4=1.E30*4.*GEOM*PI*PI*(R15*R(1))**2.*v13p6_1e4
-      write(6,*)'v,vv,vion ',v,vv,vion,V13p6_1e4
 c Total luminosity including diffuse emission      
       VVV=0.
 c Total luminosity from primary source only
@@ -1522,8 +1454,6 @@ C     RADIUS AND DENSITY AT MASS = RM(I)
          IF(IPULS.EQ.1.AND.I.EQ.2.OR.IDEN.EQ.1) THEN
             DRCGS=ABS(DELRM)*SOLMA/(4.*PI*DENR*AMEAN*AMU*RCGS**2)
             R(I)=DRCGS/(R15*1.E15)+R(I-1)
-            write(6,9782)i,delrm,drcgs,denr,r(i-1),r(i),r(i)-r(i-1)
- 9782       format('New R ',i5,1pe12.3,10e12.3)
          ENDIF
          IF(R(I).LE.1.AND.INOUT.EQ.0) GOTO 7832
          DRA(I)=ABS(R(I)-R(I-1))
@@ -1568,7 +1498,7 @@ C
  7536    TAUR=0.03*COLUMN
          GAHE=0.03*AMEAN*DENQ*GAMLUM*EXP(-TAUR)/(4.*3.14*RCGS**2)
          GAHE=GAHE*AMU
-         WRITE(6,9286)R(I),DRA(I),DRcgs,RCGS,RMASS,rm(i),TAUR,DENR
+c         WRITE(6,9286)R(I),DRA(I),DRcgs,RCGS,RMASS,rm(i),TAUR,DENR
  9286    FORMAT(' RI, DRA, DRCGS, RCGS, M(R), RM(R), T(R)',4E11.4,/,
      &        4E11.4)
          RQ=R(I)
@@ -1582,7 +1512,6 @@ C
          DO J=JMIN,JJ
             JMEAN(J)=OLDFLU(J)
          ENDDO
-
          CALL RATE(1.d0)
          DO 6372 J=JMIN,JJ
             IF(I.NE.2)  FL(1,J)=FL(2,J)
@@ -1608,6 +1537,7 @@ C     ***********************************************************
                DTLOG=LOG10(TMAX/TMIN)/21.
                DO K=1,21
                   T2=TMIN*10.**(DTLOG*(K-1))
+                  write(6,*)'rad 1',te
                   FQ=RAD(T2,XELEC,IFPOP)
                ENDDO
             ENDIF
@@ -1631,6 +1561,7 @@ C     ***********************************************************
      &           AB(9),AB(6),AB(12),AB(11),AB(8)
  9721       FORMAT(1X,'ABUND ',7E10.3)
             DO K=1,5
+               write(6,*)'rad 2',te
                FA=RAD(B1IN,XELEC,IFPOP)
             ENDDO
             TP=B1IN
@@ -1835,14 +1766,6 @@ c     O I rec.
 c         REHE1=REHE1+4.*PI*RCGS**2.*DR(I)*DEN(I)**2.*REHE21
          REN1=REN1+4.*PI*RCGS**2.*DR(I)*DEN(I)**2.*REN41
          REC1=REC1+4.*PI*RCGS**2.*DR(I)*DEN(I)**2.*REC31
-c$$$         REHE2=REHE2+4.*PI*RCGS**2.*DR(I)*DEN(I)**2.*REHE22
-c$$$         REHE3=REHE3+4.*PI*RCGS**2.*DR(I)*DEN(I)**2.*REHE23
-c$$$         REHE4=REHE4+4.*PI*RCGS**2.*DR(I)*DEN(I)**2.*REHE24
-c$$$C     HE II 304, 2-G, 1640, 4686 IN THIS ORDER
-c$$$         SPL(1)=REHE3
-c$$$         SPL(2)=REHE4
-c$$$         SPL(3)=REHE1
-c$$$         SPL(4)=REHE2
          RECOX1=4.*PI*RCGS**2*DEN(I)**2*DR(I)*ALO(2)*13.6*ELCH*
      &        AB(3)*XB(I,15)*DEL(I)
          RECOX2=4.*PI*RCGS**2*DEN(I)**2*DR(I)*ALO(3)*35.1*ELCH*
@@ -1852,23 +1775,7 @@ c$$$         SPL(4)=REHE2
          TOTI2=4.*PI*RCGS**2*DR(I)*AB(3)*XB(I,15)*CISEC(3)*35.1*ELCH
 c calculate total line lum.. 
          call emiss_calc(npri,rcgs,drcgs,den(i),del(i))
-c!!! comm
-c     print line lum ?
-c$$$         iprline=0
-c$$$         if(iprline==1) then
-c$$$            write(6,*)' line lum ',ik
-c$$$            do iel=1,14
-c$$$               do ion=1,nionstage(iel)
-c$$$                  write(6,*)'iel,ion,kmaxp(iel,ion)' ,iel,ion,kmaxp(iel,ion)
-c$$$                  do k=1,400
-c$$$                     if(wlix(iel,ion,k)>0.) then
-c$$$                        write(6,9726)iel,ion,k,ilabcfx(iel,ion,k),wlix(iel,ion,k),tot_line_lum(iel,ion,k)
-c$$$ 9726                   format('line lum ',3i4,i5,f12.3,1pe12.3)
-c$$$                     endif
-c$$$                  enddo
-c$$$               enddo
-c$$$            enddo
-c$$$         endif
+c         call sort(1)
 C     TOTAL ENERGY
 C     CALCULATE FLUX
          DO J=JMIN,JJ
@@ -1926,14 +1833,6 @@ c$$$C     ***********************************************************
          RCGS=1.E15*R(I)*R15
          VELI=RCGS*VEXP/RMAXCGS
          IF(I.EQ.2) VELIMAX=VELI
-c$$$         IF(AB(3).GT.0.1.AND.MOXY.EQ.0) VOXMAX=VELI
-c$$$         IF(AB(3).GT.0.1) VOXMIN=VELI
-c$$$         IF(AB(3).GT.0.1) MOXY=1
-c$$$         IF(INOUT.EQ.0) GOTO 8665
-c$$$         VELIMAX=VELI
-c$$$         IF(AB(3).GT.0.1.AND.MOXY.EQ.0) VOXMIN=VELI
-c$$$         IF(AB(3).GT.0.1) VOXMAX=VELI
-c$$$ 8665    CONTINUE
          DRSCGS=1.E15*R15*(R(I)-R(1))
          IF(ISTAT.NE.1) THEN
             WRITE(6,900)I,VELI/1.E5,DRSCGS,DEN(I),DEL(I),TE(I)
@@ -1954,35 +1853,6 @@ c         WRITE(6,903) ERADTOT,ERADTOT1,V,VV,DERAD,DERADDV,
 c     &        (CIT+FBT),R(I)*R15
          RSUN=MTOT/SOLMA
 c     
-c$$$c     4A model
-c$$$c     
-c$$$         RM4A=2.684
-c$$$         RQQ=0.
-c$$$         if(RSUN.GT.RQQ) rmfe=0.068
-c$$$         if(RSUN.GT.RQQ) rmsi=0.137
-c$$$         if(RSUN.GT.RQQ) rmmg=0.813
-c$$$         if(RSUN.GT.RQQ) rmoc=1.035
-c$$$c     
-c$$$c     8A model
-c$$$c     
-c$$$         RM8A=5.832
-c$$$         RQQ=RM4A+.01
-c$$$         if(RSUN.GT.RQQ) rmfe=0.35
-c$$$         if(RSUN.GT.RQQ) rmsi=0.80
-c$$$         if(RSUN.GT.RQQ) rmmg=2.56
-c$$$         if(RSUN.GT.RQQ) rmoc=3.60
-c$$$         IF(RMASS.GE.RMFE.AND.IFE.EQ.0)TAUFE=TAUR
-c$$$         DTAUFE=TAUFE
-c$$$         IF(RMASS.GE.RMFE) IFE=1
-c$$$         IF(RMASS.GE.RMSI.AND.ISI.EQ.0)TAUSI=TAUR
-c$$$         DTAUSI=TAUSI-TAUFE
-c$$$         IF(RMASS.GE.RMSI) ISI=1
-c$$$         IF(RMASS.GE.RMMG.AND.IOMG.EQ.0)TAUOMG=TAUR
-c$$$         DTAUOMG=TAUOMG-TAUSI
-c$$$         IF(RMASS.GE.RMMG) IOMG=1
-c$$$         IF(RMASS.GE.RMOC.AND.IOC.EQ.0)TAUOC=TAUR
-c$$$         DTAUOC=TAUOC-TAUOMG
-c$$$         IF(RMASS.GE.RMOC) IOC=1
          etau1=0.
          DO J=JJ,JMIN,-1
             IF(TAUTOT(I,J).GT.1.) GOTO 2876
@@ -2046,8 +1916,9 @@ C     LINE COOLING RATE
          write(59,9291)I,VELI/1.E5,DRSCGS,DEN(I),DEL(I),TE(I),
      &        (xion(i,5,ion),ion=1,8),(xion(i,10,ion),ion=1,14),
      &        (xion(i,11,ion),ion=1,16),(xion(i,12,ion),ion=1,18),
-     &        (xion(i,13,ion),ion=1,5),(xion(i,14,ion),ion=1,14)
-c O 6-13, Si 14-27, S 28-43, Ar 44-61, Ca 62-66, Fe 67-80         
+     &        (xion(i,13,ion),ion=1,5),(xion(i,14,ion),ion=1,14),
+     &        (xion(i,6,ion),ion=1,10)
+c O 6-13, Si 14-27, S 28-43, Ar 44-61, Ca 62-66, Fe 67-80, Ne 81-90         
  9291    format(i4,f12.4,1pe13.5,3e11.3,111e11.3)
          IF(IRECWARN.EQ.1) THEN
             WRITE(6,*)' Recombination time scale is long!!'
@@ -2150,7 +2021,6 @@ C     SAVE TOTAL COLUMN DENSITY (DIVIDED BY SQRT(T) AND A) FOR ESCAPE PROB.
             COLHVTT(K,I)=COLHVT(K,I)
         ENDDO
       ENDDO
-c$$$      WRITE(6,*)'line prof '
 C     ***********************************************************
 C     *****
 C     CALCULATE LINE PROFILES
@@ -2230,10 +2100,6 @@ C1928  F0(J)=F0(J)/R(IMAX)**2
       WRITE(6,9420)(FL(2,J),J=JMIN,JJ)
       WRITE(6,*)'OPTICAL DEPTHS'
       WRITE(6,9420)(TAUTOT(IMAX,J),J=JMIN,JJ)
-c$$$      do j=jmin,jj         
-c$$$         write(47,9272)i,j,e1(j),tau(i,j),tautot(i,j),em(i,j),emc(i,j),
-c$$$     &        fl(2,j)
-c$$$      enddo
 9100  FORMAT(1X,'*******************************************************
      &******************')
 9899  FORMAT(A)

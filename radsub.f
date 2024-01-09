@@ -107,10 +107,8 @@ C
      &/(G1*(1.+1./RN1N2))
       XX=G1*(A21*BE*(1.+FIN)+C21*DENEL)/(G2*(C21*DENEL*EXP(-ENTE)+
      &     BE*FIN*A21))
-c      write(6,*)'c21,denel,ente,xx',c21,denel,ente,xx
       WEQ=Z*A21*ENCGS*BE*DE(R)*((1.-W)-FIN*
      &     (XX*G2/G1-1.))/(1.+XX)
-c      write(6,*)'z,a21,encgs,be,w,fin,xx,g2,g1,weq ',z,a21,encgs,be,w,fin,xx,g2,g1,weq
       IF(EN/TE.LT.100.) BPL=2.031E-04*EEV**3/(EXP(EN/TE)-1.)
       IF(NBACK.EQ.1) THEN 
         FIN=FMEAN(2,EEV)
@@ -122,14 +120,12 @@ C     SOURCE FUNCTION INCL. STIM. EMISSION
       IF(EN/TE.LT.100.) EP=E*(1.-EXP(-EN/TE))
       IF(EN/TE.LT..001) EP=E*EN/TE
       SOURCE=(EP*BPL+BE*FIN)/(EP+BE)
-c      write(6,*)'ep,bpl,be,fin,source ',ep,bpl,be,fin,source
 C     OBSERVED INTENSITY
       EXPM1=1.-EXP(-T0)
       IF(T0.LT.1.E-3) EXPM1=T0-0.5*T0**2
       IF(ISTAT.NE.1) THEN
 c     CINT=4.*PI*1.E8*EXPM1*SOURCE/(TIME*WL*DENEL*DE(R))
          CINT=4.*PI*1.E8*EXPM1*SOURCE/(TIME*WL*DENEL)
-c         write(6,*)'t0,expm1,source,time,wl,cint ',t0,expm1,source,time,wl,cint
       ELSE
 c     CINT=WEQ/(DENEL*DE(R))
          CINT=WEQ/DENEL
@@ -137,9 +133,6 @@ c     CINT=WEQ/(DENEL*DE(R))
 C     CONVERT TO INTENSITY/ ANGSTROM
       SOURCE=3.E18*SOURCE/WL**2
 c      SRED(L)=EXPM1*SOURCE
-      if(abs(cint) > 0.) then
-c         write(6,*)' cint > 1 in rloss ',istat,k,r,de(r),denel,wl,weq,cint
-      endif
 c     simple cint!!!
       c12=g2*exp(-en/te)*c21/g1
       cint2=z*a21*encgs*be*c12*denel/
@@ -157,9 +150,6 @@ c!!!  put cont. intensity fc=0!
 
       therm=1.-c21*denel/(c21*denel+be*a21)
       if(k==26) then
-c         write(6,982)wl,te,om,g1,g2,a21,t0,be,en/te,fin,z,denel,de(r),x2,
-c     &        therm,rl,cint2,cint
- 982     format('Si II ',f10.2,1pe12.3,20e12.3)
       endif
       RETURN
       END
@@ -184,7 +174,6 @@ C     ***************************************************************
       IF(EX2.GT.100.) EX2=100.
       IF(EX.LT.100)ALD=A*EXP(-EX)*(1.+B*EXP(-EX2))/(TE*SQRT(TE))
       IF(TE.LT.4000.) ALD=0.
-c      write(6,*)'diel ',ar,t0r,br,ald
       RETURN
       END
 
@@ -198,7 +187,6 @@ C     AND STOREY (A&A 126,75 (1983))
 C     ******
 C     ***************************************************************
 C     DIELECTRIC RECOMBINATION RATE
-c      write(6,*)'t4,ar,br,cr,dr,fr ',t4,ar,br,cr,dr,fr
       A=DBLE(AR)
       B=DBLE(BR)
       C=DBLE(CR)
@@ -211,9 +199,6 @@ c      write(6,*)'t4,ar,br,cr,dr,fr ',t4,ar,br,cr,dr,fr
       ALDB=1.E-12*(A/T4+B+C*T4+D*T4*T4)*EXP(-F/T4)/T4**1.5
  100  CONTINUE
       IF(T4.LT..2) ALDB=0.d0
-c      write(6,9)t4,a,b,c,d,f,ald
- 9    format('dielb qq ',1pe12.4,10e12.4)
-c      write(6,*)'dielb ',ar,br,aldb
       RETURN
       END
 
@@ -245,11 +230,6 @@ c      PARAMETER (NFEL=1000)
       DATA PI/3.1415926E0/,ELCH/1.60219E-12/,AMU/1.660531E-24/
       DEN=DENS(IK)
       DENEL=DEN*DEL(IK)
-c      write(6,9343)KI,N,E1,E2,E3,E4,E5,G1,G2,
-c     &G3,G4,G5,A21,A31,A41,A51,A32,A42,A52,A43,A53,
-c     &     A54,C21,C31,C41,C51,C32,C42,C52,C43,C53,C54,TE,Z
-c      write(6,*)'den i five lev ',iel,ion,ik,den      
- 9343 format('fivelev ',2i5,1pe12.3,50e12.3)
       NM1=N-1
       NP1=N+1
       DO I=1,NP1
@@ -348,7 +328,6 @@ C!!   ASSUME MEAN ATOMIC WEIGHT = 20.
       VTERM=1.285E6*SQRT(TE/(AU*1.E4))
       CALL ESCAPE(T0,T0T,WL(J,I),A(J,I),VTERM,BE(J,I),DBEDTA)
       topt(j,i)=t0
-c      write(6,*)i,j,t0,t0t,be(j,i)
       IF(I.NE.J) GOTO 2
       S=0.
       DO  K=1,N
@@ -386,7 +365,9 @@ c      write(6,*)i,j,t0,t0t,be(j,i)
       DO I=2,N         
          DO J=1,I-1
             WOBS(I,J)=1.602E-12*Z*(E(I)-E(J))*X(I)*A(I,J)*BE(I,J)/DEN
-            EM(I,J)=WOBS(I,J)
+c            EM(I,J)=WOBS(I,J)
+            EM(I,J)=1.602E-12*Z*(E(I)-E(J))*
+     &           (X(J)*C(J,I)-X(I)*C(I,J))/DENEL
             IF(K.le.400.and.a(i,j).gt.0.) then
                K=K+1
                SR(K)=0.
@@ -609,7 +590,7 @@ c       data nionel/1,2,6,7,8,10,11,12,13,14,16,18,20,26/
       integer z2cf(26)      
       data z2cf/1,2,0,0,0,3,4,5,0,6,7,8,9,10,0,11,0,12,0,13,0,0,0,0,0,14/
 C     IONIZATION BALANCE EQUATIONS TAKING INTO ACCOUNT AUGER
-C      IONIZATION AND COLLISIONAL IONIZATION (FROM WEISHEIT ).
+C      IONIZATION AND COLLISIONAL IONIZATION 
 C     XR(I)=N(I+1)/N(I)
 c      CALL COSI
 
@@ -729,6 +710,10 @@ c     if(izmax >= 8 .and. inition==0 ) then
             xa(i)=0.
          else
             xa(i)=x(i-im1)
+         endif
+         if(iz==10.or.iz==12) then
+c            write(6,9298)iz,z2cf(iz),i,xa(i)
+ 9298       format(' Ion balance ',3i5,1pe12.3,10e12.3)
          endif
          xion(ik,z2cf(iz),i)=xa(i)
       enddo

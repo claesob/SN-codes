@@ -194,12 +194,16 @@ C************************************************************
      &     phioncaii,phionfeii
       common/rec_coll/alrec(30,30),collion(30,30)
       common/gsreco/al_gs(26,26,10)
+      common/rr_diel_badn/dielbadn(30,30),alrecbadn(30,30)
+     &     ,altotbadn(30,30)
       dimension aldfe(27),cofeea(26),cofedir(26),alsi_nahar(15)
       dimension cthr(14,26),cther(14,26)
       dimension tlr(100),recc(10,100),recn(10,100),reco(10,100),recsi(10,100)
       save tlr,recc,recn,reco,recsi
       dimension nion(14)
+      real*8 alnedi(12)
       data nion/1,2,6,7,8,10,11,12,13,14,16,18,20,26/
+      call rr_diel_badnell(te)
       tq=1.e6           
 c
       TELOG=DLOG10(TE)                                                  
@@ -1333,12 +1337,12 @@ c      ALO(2)=alo(2) + cth
 c
       ALO(1)=0.0d0
 
-
 C     ***************************************************************   
 C     *****                                                             
 C     NEON      
 C     *****                                                             
 C     ***************************************************************   
+
       ALNE(1)=0.                                                       
 c
 
@@ -1402,7 +1406,14 @@ cf!!
       ALD=ALD*BDCORR*SUPR                                       
       ALNE(10)=8.60D-11/T4**.769+ALD                           
 C
-      ALNE(11)=AL(7)                           
+      ALNE(11)=AL(7)
+
+c      write(6,9278)te,(alne(k),k=2,11)
+ 9278 format(' Old Ne rec ',1pe12.3,12e12.3)
+
+
+c      stop
+      
 C     ***************************************************************   
 C     *****                                                             
 C     SODIUM       
@@ -1615,9 +1626,8 @@ c
       ALD=(ALD*BDCORR+ALDB)*SUPR                                       
       ALSI(2)=5.90D-13/T4**.601+ALD
 c use this instead!      
-      call rec_fit_bad(14,2,te,alsi(2))
+      call rec_fit_bad(14,2,te,aldi,alsi(2))
       call rec_rr_dr(14,2,te,alsi(2))
-      
       alchsi = alsi(2)                          
 C                                                                       
       CALL DIEL(5.87D-3,9.63D4,0.753D0,6.46D4,TE,ALD)                  
@@ -1717,7 +1727,7 @@ C
       CALL DIEL(1.62D-3,1.25D5,0.0D0,0.0D0,TE,ALD)                
       ALD=(ALD*BDCORR+ALDB)*SUPR                                       
       ALSU(2)=4.1D-13/T4**.630+ALD
-      call rec_fit_bad(16,2,te,alsu(2))
+      call rec_fit_bad(16,2,te,aldi,alsu(2))
       alchs = alsu(2)
 
 C                                                                       
@@ -1725,12 +1735,12 @@ C
       ALD=(ALD*BDCORR+ALDB)*SUPR                                       
       ALSU(3)=1.8D-12/T4**.686+ALD                             
       alchsii = alsu(3)
-      call rec_fit_bad(16,3,te,alsu(3))
+      call rec_fit_bad(16,3,te,aldi,alsu(3))
 C
       CALL DIEL(3.35D-2,1.89D5,0.0659D0,1.59D5,TE,ALD)              
       ALD=(ALD*BDCORR+ALDB)*SUPR                                       
       ALSU(4)=2.7D-12/T4**.745+ALD
-      call rec_fit_bad(16,4,te,alsu(4))
+      call rec_fit_bad(16,4,te,aldi,alsu(4))
       call rec_rr_dr(16,4,te,alsu(4))
 
 C
@@ -1836,7 +1846,7 @@ C
       ALD=(ALD*BDCORR+ALDB)*SUPR                                       
       ALAR(6)=9.12D-12/T4**.811+ALD
 c use this instead!
-      call rec_fit_bad(18,6,te,alar(6))
+      call rec_fit_bad(18,6,te,aldi,alar(6))
       call rec_rr_dr(18,6,te,alar(6))
 c
       CALL DIEL(6.35D-2,2.10D5,0.14D0,2.15D5,TE,ALD)                   
@@ -2179,6 +2189,99 @@ cf!!
 C
       ALNI(29)=AL(15)
 
+c     New recombination rates from Badnell et al
+c      call rr_diel_badnell(te)
+      do m=1,11
+         if(m==1) then
+            iel=6
+         elseif(m==2) then
+            iel=8            
+         elseif(m==3) then
+            iel=10
+         elseif(m==4) then
+            iel=11
+         elseif(m==5) then
+            iel=12
+         elseif(m==6) then
+            iel=13
+         elseif(m==7) then
+            iel=14
+         elseif(m==8) then
+            iel=16
+         elseif(m==9) then
+            iel=18
+         elseif(m==10) then
+            iel=20
+         elseif(m==11) then
+            iel=7                                  
+         endif
+c         do k=1,41
+c         te=10.**(2+0.1*(k-1))
+         call rr_diel_badnell(te)
+         do ion=2,iel+1
+c     call rec_fit_bad(iel,ion,te,aldi,alrr_di)
+            if(iel==6) then
+               alc(ion)=altotbadn(iel,ion)
+            elseif(iel==7) then
+               aln(ion)=altotbadn(iel,ion)
+            elseif(iel==8) then
+               alo(ion)=altotbadn(iel,ion)               
+            elseif(iel==10) then
+               alne(ion)=altotbadn(iel,ion)
+            elseif(iel==11) then
+               alna(ion)=altotbadn(iel,ion)               
+            elseif(iel==12) then
+               almg(ion)=altotbadn(iel,ion)
+            elseif(iel==13) then
+               alal(ion)=altotbadn(iel,ion)               
+            elseif(iel==14) then
+               alsi(ion)=altotbadn(iel,ion)
+            elseif(iel==16) then
+               alsu(ion)=altotbadn(iel,ion)
+            elseif(iel==18) then
+               alar(ion)=altotbadn(iel,ion)
+c Badnell does not do the two lowest stages
+               if(ion==2) then
+                  CALL DIEL(1.0D-3,3.20D5,5.0D-3,3.10D5,TE,ALD)                
+                  ALD=(ALD*BDCORR+ALDB)*SUPR                                       
+                  ALAR(2)=3.77D-13/T4**.651+ALD                  
+                  alchar = alar(2)
+               elseif(ion==3) then                                                                       
+                  CALL DIEL(1.10D-2,2.90D5,0.045D0,5.50D5,TE,ALD)                  
+                  ALD=(ALD*BDCORR+ALDB)*SUPR                                       
+                  ALAR(3)=1.95D-12/T4**.752+ALD                             
+                  alcharii = alar(3)
+               endif
+            elseif(iel==20) then
+               alca(ion)=altotbadn(iel,ion)
+               ALDB=0.0D0
+               if(ion==2) then
+                  CALL DIEL(3.28D-4,3.46D4,0.0907D0,1.64D4,TE,ALD)                
+                  ALD=(ALD*BDCORR+ALDB)*SUPR                                       
+                  ALCA(2)=1.12D-13/T4**.900+ALD                             
+                  alchca = alca(2)
+               elseif(ion==3) then                                                                       
+                  CALL DIEL(5.84D-2,3.85D5,0.11D0,2.45D5,TE,ALD)                  
+                  ALD=(ALD*BDCORR+ALDB)*SUPR                                       
+                  ALCA(3)=6.78D-13/T4**.800+ALD                             
+                  alchcaii = alca(3)
+               elseif(ion==4) then
+                  CALL DIEL(1.12D-1,4.08D5,0.0174D0,4.27D5,TE,ALD)              
+                  ALD=(ALD*BDCORR+ALDB)*SUPR                                       
+                  ALCA(4)=3.96D-12/T4**.700+ALD
+               elseif(ion==5) then 
+                  CALL DIEL(1.32D-1,3.82D5,0.132D0,6.92D5,TE,ALD)              
+                  ALD=(ALD*BDCORR+ALDB)*SUPR                                       
+                  ALCA(5)=7.08D-12/T4**.780+ALD
+               endif
+            endif                              
+         enddo
+c         write(6,9145)iel,te,(altotbadn(iel,ion),alrecbadn(iel,ion),ion=1,iel)
+ 9145    format('iel, T, Diel+RR, RR ',i5,1pe12.3,50e12.3)
+c      enddo
+      enddo
+      
+
       do i=1,6
          alrec(6,i+1)=alc(i+1)
       enddo
@@ -2213,42 +2316,42 @@ C
          alrec(14,i+1)=alsi(i+1)
       enddo
 c Si II -> Si I       
-      call rec_fit_bad(14,2,te,alrec(14,2))
+      call rec_fit_bad(14,2,te,aldi,alrec(14,2))
       alsi(2)=alrec(14,2)
       
       do i=1,16
          alrec(16,i+1)=alsu(i+1)
       enddo
 c S III -> S II       
-      call rec_fit_bad(16,3,te,alrec(16,3))
+      call rec_fit_bad(16,3,te,aldi,alrec(16,3))
       alsu(3)=alrec(16,3)
 c S IV -> S III       
-      call rec_fit_bad(16,4,te,alrec(16,4))            
+      call rec_fit_bad(16,4,te,aldi,alrec(16,4))            
       alsu(4)=alrec(16,4)
       do i=1,18
          alrec(18,i+1)=alar(i+1)
       enddo
 c Ar IV -> Ar III       
-      call rec_fit_bad(18,4,te,alrec(18,4))
+      call rec_fit_bad(18,4,te,aldi,alrec(18,4))
       alar(4)=alrec(18,4)
 c Ar V -> Ar IV       
-      call rec_fit_bad(18,5,te,alrec(18,5))
+      call rec_fit_bad(18,5,te,aldi,alrec(18,5))
       alar(5)=alrec(18,5)
 c Ar VI -> Ar V       
-      call rec_fit_bad(18,6,te,alrec(18,6))            
+      call rec_fit_bad(18,6,te,aldi,alrec(18,6))            
       alar(6)=alrec(18,6)
       
       do i=1,20
          alrec(20,i+1)=alca(i+1)
       enddo
 c Ca VI -> Ca V       
-      call rec_fit_bad(20,6,te,alrec(20,6))
+      call rec_fit_bad(20,6,te,aldi,alrec(20,6))
       alca(6)=alrec(20,6)
 c Ca VII -> Ca VI       
-      call rec_fit_bad(20,7,te,alrec(20,7))
+      call rec_fit_bad(20,7,te,aldi,alrec(20,7))
       alca(7)=alrec(20,7)
 c Ca VIII -> Ca VII       
-      call rec_fit_bad(20,8,te,alrec(20,8))
+      call rec_fit_bad(20,8,te,aldi,alrec(20,8))
       alca(8)=alrec(20,8)
 
       do i=1,26
@@ -2300,8 +2403,15 @@ c CT with He I
 
       alchfe = alrec(14,2)
       alchfeii = alrec(14,3)
-
-
+c$$$      do iel=8,20,2
+c$$$         do ion=1,iel+1
+c$$$            call rec_fit_bad(iel,ion,te,aldi,ald)
+c$$$            call rec_rr_dr(iel,ion,te,alrr)
+c$$$            write(6,902)iel,ion,te,ald,alrr,ald+alrr
+c$$$ 902        format('ald,alrr,altot ',2i5,1pe12.3,30e12.3)
+c$$$         enddo
+c$$$      enddo
+c$$$
       RETURN                                                            
       END                                                               
 
@@ -3629,7 +3739,7 @@ c!!! ion     data (CTHEIon(i,1,14),i=1,6)/1.30,0.00,0.00,0.00,1e+1,1e+4/
 
       end
 
-      subroutine rec_fit_bad(iel,ion,te,alrr_di)
+      subroutine rec_fit_bad(iel,ion,te,aldi,alrr_di)
       implicit real*8 (a-h,o-z)
       common/recbad/ c(26,26,8),e(26,26,8),rr(26,26,6)
       aldi=0.
@@ -3652,6 +3762,9 @@ c      stop
      &     (1.+sqrt(te/t1))**(1.+b))
 
       alrr_di=alrr+aldi
+      
+c      write(6,9)iel,ion,te,(c(iel,ion,i),i=1,5),aldi,alrr
+ 9    format('rec_fit_bad ',2i5,1pe12.3,20e12.3)
 
       return
       end

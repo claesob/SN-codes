@@ -237,42 +237,6 @@ C
       END
      
 
-c$$$      SUBROUTINE ROMB(AA,BB,ERR,FI,FAIL,K)
-c$$$      IMPLICIT REAL*8(A-H,O-Z)
-c$$$      DIMENSION TR(100),W(100)
-c$$$      write(6,*)' i romb '
-c$$$      A=DBLE(AA)
-c$$$      B=DBLE(BB)
-c$$$      DX=(B-A)/2.
-c$$$      FI1=0.5*(FX(A)+FX(B))
-c$$$      FI2=FX(A+DX)
-c$$$      TR(1)=DX*(FI1+FI2)
-c$$$      N=1
-c$$$      K=1
-c$$$      W(1)=4.
-c$$$1     FI=TR(1)
-c$$$      W(K+1)=4.*W(K)
-c$$$      N=2*N
-c$$$      K=K+1
-c$$$      TDX=DX
-c$$$      DX=DX/2.
-c$$$      X=A+DX
-c$$$      DO I=1,N
-c$$$         FI2=FI2+FX(X)
-c$$$ 2       X=X+TDX
-c$$$      enddo
-c$$$      TR(K)=DX*(FI1+FI2)
-c$$$      KK=K-1
-c$$$      DO J=1,KK
-c$$$         M=K-J
-c$$$         TR(M)=(W(J)*TR(M+1)-TR(M))/(W(J)-1.)
-c$$$      enddo
-c$$$      FAIL=ABS(TR(1)-FI)/ABS(TR(1))
-c$$$      IF(FAIL-ERR)6,6,4
-c$$$4     IF(K-100)1,6,6
-c$$$6     FI=TR(1)
-c$$$      RETURN
-c$$$      END
 
       SUBROUTINE SNPAR(TDAY,RPH,TEFF,RLUM)
       IMPLICIT REAL*8(A-H,O-Z)
@@ -380,7 +344,7 @@ c      write(6,*)'initstruc ',initstruc
       if(initstruc==1) then
          INITstruc=0
          
-c     abundaces ffor 19 M solar model.  fractions by number!
+c     abundaces for 19 M solar model.  fractions by number!
          open(12,file='./ATDAT/WH2007_19M_numb_dens.dat',status='old')           
          read(12,*)imax
          read(12,*)tt
@@ -390,10 +354,10 @@ c     abundaces ffor 19 M solar model.  fractions by number!
             abu(14,i)=fe+ni56+ni57
          enddo
 
-c     oxygen core mass = 2.0 M_sun in HW 19 M model
-c     assume velocity=2000 km/s for core and uniform mass density
-         mcore=2.0
-         vcore=2.e3*1.e5
+c     oxygen core mass = 3.0 M_sun in HW 19 M model
+c     assume velocity=2500 km/s for core and uniform mass density
+         mcore=3.0
+         vcore=2.2e3*1.e5
          vol=4.*pi*((vcore*tday*8.64e4)**3-(pwn_vel*tday*8.64e4)**3)
      &        /3.
          dcore=msun*mcore/vol
@@ -465,7 +429,11 @@ C     MEAN ATOMIC WEIGHT PER ION
  444  continue
       DET0=DENI*AMEAN*1.67E-24      
       DEN1=DENI
+c      write(6,9191)tday,vcore*tday*8.64e4,r_pwn,dcore,amean,deni
+c      write(0,9191)tday,vcore*tday*8.64e4,r_pwn,dcore,amean,deni
+ 9191 format('tday,rcore,r_pwn,dcore,amean,deni ',1pe12.3,10e12.3)
       ri=rit0
+
       RETURN
       END
 
@@ -1319,108 +1287,6 @@ C
       JMEAN(J)=FL(2,J)
       RETURN
       END
-
-
-c$$$      SUBROUTINE RADTRANOI(IH,J,TAX,S)
-c$$$C     ***********************************************************
-c$$$C     *****
-c$$$C     FOR THE FIRST ITERATION (NITSPH=1) SOLVE THE EQUATION OF TRANSFER
-c$$$C         IN THE OUTWARD ONLY APPROXIMATION. FOR THE NEXT ITERATIONS
-c$$$C         (NITSPH > 1) CALCULATE THE CONTINOUS OPACITIES FOR THE SHELL.
-c$$$C     WORKS BOTH IN OUT AND OUT IN
-c$$$C     HERE OUT TO IN
-c$$$C     USED FOR ALL CS-INT. CALC.
-c$$$C     IF IH = 1 CALCULATE FLUX & MEAN INTENSITY
-c$$$C     IF IH = 1 CALCULATE MEAN INTENSITY
-c$$$C     *****
-c$$$C     ***********************************************************
-c$$$      IMPLICIT REAL*8(A-H,O-Z)
-c$$$      include "parameters.h"
-c$$$      PARAMETER (NE1=-200,NE2=130,NE3=NE2+1)
-c$$$      SAVE
-c$$$      COMMON/IND/I
-c$$$      COMMON/CINOUT/INOUT,IPULS
-c$$$      COMMON/FRE/NINT,JMIN,JJ
-c$$$      COMMON/INT/FL(2,NE1:NE2),SI(ncr,NE1:NE2),E1(NE1:NE3),E(NE1:NE3)
-c$$$      COMMON/ITSPH/NITSPH
-c$$$      COMMON/LITER/N
-c$$$      COMMON/DIF/EM(MD,NE1:NE2),TAU(MD,NE1:NE2),TAUTOT(MD,NE1:NE2),
-c$$$     &           EMC(MD,NE1:NE2)
-c$$$      COMMON/RADIE/R(MD)
-c$$$      COMMON/SPECT/TEL,FD(MD,NE1:NE2),F0(NE1:NE2),ipar
-c$$$      real*8 jmean
-c$$$      COMMON/DTAU/JMEAN(NE1:NE2)
-c$$$      COMMON/DIFFP/FH0(NE1:NE2),FHD(NE1:NE2)
-c$$$      DIMENSION S(MD,NE1:NE2),E2Q(2),E3Q(2)
-c$$$      DATA PI/3.1415926E0/,ELCH/1.60219E-12/,AMU/1.660531E-24/
-c$$$      write(6,*)' i radtranoi '
-c$$$C
-c$$$C     PRIMARY FLUX
-c$$$C
-c$$$      IF(IPULS.EQ.1) THEN
-c$$$            FPRIM=EXP(-TAUTOT(I,J))*FMEAN(j,1,E1(J))
-c$$$      ELSE
-c$$$            FPRIM=0.
-c$$$      ENDIF
-c$$$C     ***********************************************************
-c$$$C     *****
-c$$$C
-c$$$C     FOR SECOND AND HIGHER ITERATIONS THE DIFFUSE FLUX IS 
-c$$$C     ALREADY CALCULATED
-c$$$C     MEAN INTENSITY = PRIMARY FLUX + DIFFUSE FLUX
-c$$$c!    IF TAU > 1 USE J = SOURCE FCN.
-c$$$C     *****
-c$$$C     ***********************************************************
-c$$$      IF(N.EQ.1) THEN
-c$$$      FD(I,J)=0.
-c$$$c      IF(TAUTOT(I,J).GT.0.001.AND.N.EQ.1)  
-c$$$c     &                  FL(2,J)=S(I,J)*(1.-exp(-tautot(i,j)))
-c$$$C
-c$$$c     OUTWARD ONLY APPROX ( TWICE AS MUCH AS IF INTERNAL ABSORPTION)
-c$$$C
-c$$$            IF(TAX.LT.10.) THEN      
-c$$$                  TAUIK=0.
-c$$$                  TAUIKM1=0.
-c$$$                  DO IK=I,2,-1
-c$$$C!!   ASSUME NO DILUTION AND THAT THERE IS NO ABSORPTION INTERNAL TO 
-c$$$C           RADIUS I.
-c$$$                        TAUIK=TAUIK+TAU(IK,J)
-c$$$                        TAUIKM1=TAUIK-TAU(IK,J)
-c$$$C
-c$$$c     OUTWARD ONLY APPROX ( TWICE AS MUCH AS IF INTERNAL ABSORPTION)
-c$$$C
-c$$$                  DO KK=1,2
-c$$$                    IF(KK.EQ.1) X=TAUIK
-c$$$                    IF(KK.EQ.2) X=TAUIKM1
-c$$$                    E2Q(KK)=1.
-c$$$                    IF(X.GT.0.) THEN
-c$$$                      IF(X.GT.0..AND.X.LT.0.1) THEN
-c$$$                        E2Q(KK)=1.-X+X*X/2-X*(-LOG(X)-.577216+X)
-c$$$                        IF(IH.EQ.1) E3Q(KK)=(1.D0-X+X*X/2.D0
-c$$$     &                                     -X**3/6.D0-X*E2Q(KK))/2.
-c$$$                      ELSE
-c$$$                        E2Q(KK)=E2(X)
-c$$$                        IF(IH.EQ.1) E3Q(KK)=(EXP(-X)-X*E2Q(KK))/2.
-c$$$                      ENDIF
-c$$$                    ENDIF
-c$$$                  ENDDO
-c$$$                        FD(I,J)=S(IK,J)*(-E2Q(1)+E2Q(2))
-c$$$     &                                    +FD(I,J)
-c$$$                        IF(IH.EQ.1) FHD(J)=S(IK,J)*(-E3Q(1)+E3Q(2))
-c$$$     &                                    +FHD(J)
-c$$$                  ENDDO
-c$$$            ELSE
-c$$$                  FD(I,J)=S(I,J)
-c$$$                  IF(IH.EQ.1) FHD(J)=0.
-c$$$            ENDIF
-c$$$            FL(2,J)=FD(I,J)+FPRIM
-c$$$      ELSE
-c$$$            FL(2,J)=FPRIM+FD(I,J)
-c$$$      ENDIF
-c$$$      FH0(J)=FPRIM
-c$$$      JMEAN(J)=FL(2,J)
-c$$$      RETURN
-c$$$      END
 
       SUBROUTINE IONABUND(XP)
       IMPLICIT REAL*8(A-H,O-Z)

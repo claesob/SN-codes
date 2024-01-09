@@ -399,6 +399,7 @@ C     *****
       COMMON/RECAL/RECO(NL)
       COMMON/A19/EMCA(NL,NL),ESCCA(NL,NL),TTOT(NL,NL),TOP(NL,NL)
       COMMON/A31/TOPI(10,NL,NL),EMHY(NL,NL)
+      COMMON/A2/SIq,T0,TAULq
       COMMON/IOINF/IOSPEC,IOLEVEL,IOEMISS,IOTERM,IOION,IOELITER
       COMMON/IOPAR/IOSHELL,IORAD1,IORAD2,IOFLUX
       COMMON/MULTI/IHMUL,IHEMUL,IOMUL,ICAMUL,IFEMUL
@@ -452,6 +453,7 @@ C     *****
       parameter(nchi22=20)
       PARAMETER (nups=65)
       common/chianti_2022_cs/upsil(nchi22,nups,nups)
+      common/critdens/dcrit(14,27,401)
       DATA PI/3.1415926E0/,ELCH/1.60219E-12/,AMU/1.660531E-24/
       DATA CSAHA/2.0708E-16/
       DATA A21HNU/1.,7.663E-3,1.301E-4,3.390E-5,1.144E-5/
@@ -573,96 +575,18 @@ C
       ENDIF
       DEEL=DELA(MI)
       CALL SECEX(DELA(MI))
-c$$$C     ***************************************************************
-c$$$C     *****
-c$$$C     CALCULATE GOULDS CORRECTION FOR RADIATIVE REC. TO EXC. STATES
-c$$$C     *****
-c$$$  C     ***************************************************************
+
       FIR31=FIR(3,1.d0,TE)
 C     ***************************************************************
 C     *****
 C     IONIZATION EQUIL. FOR OXYGEN INCLUDING AUGER IONIZATIONS
 C     *****
 C     ***************************************************************
-c$$$C
-c$$$C     OXYGEN RECOMBINATION COEFF. INCLUDING DIEL. REC.(ALD. AND PEQ.)
-c$$$C     AND CHARGE TRANSFER.
-c$$$      ALO(9)=AL(4)
-c$$$       CALL DIEL(8.6d-2,7.0d6,0.2d0,1.3d6,TE,ALD)
-c$$$      SUPR=1.
-c$$$c!!      IF(DEN(IK).GT.1.E9) SUPR=0.26
-c$$$       ALD=ALD*SUPR
-c$$$      ALO(8)=4.1E-11/T4**.742+ALD
-c$$$      CALL DIEL(1.1d-1,6.2d6,0.2d0,9.5d5,TE,ALD)
-c$$$      ALD=ALD*SUPR
-c$$$      ALO(7)=2.3E-11/T4**.802+ALD
-c$$$      CALL DIEL(7.1d-3,1.3d5,3.2d0,8.0d5,TE,ALD)
-c$$$      CALL DIELB(-2.8425d0,.2283d0,4.0407d1,-3.4956d0,1.7558d0,T4,ALDB)
-c$$$      ALD=(ALD+ALDB)*SUPR
-c$$$      ALO(6)=1.2E-11/T4**.779+ALD
-c$$$      CALL DIEL(1.7d-2,2.2d5,2.0d0,5.9d5,TE,ALD)
-c$$$      CALL DIELB(6.1d-3,.2269d0,3.2142d1,1.9939d0,-6.46d-2,T4,ALDB)
-c$$$      ALD=(ALD+ALDB)*SUPR
-c$$$C
-c$$$C     C-T BD 80
-c$$$C
-c$$$C*********
-c$$$      XCT=XH
-c$$$      CT=((.16+.096*T4**1.14)*1.E-9*XH+6.5E-10*XHE)/DELA(MI)
-c$$$C     ALRAD FROM GOULD (1978)
-c$$$      ALTRAD=1.03E-11/T4**.5
-c$$$      ALGS(17)=0.314*ALTRAD
-c$$$      ALEX(17)=ALTRAD*(1.-0.314)*FIR31
-c$$$      ALRAD=ALGS(17)+ALEX(17)     
-c$$$      ALO(5)=ALRAD+ALD+CT
-c$$$      CALL DIEL(2.8d-3,1.8d5,6.d0,9.1d4,TE,ALD)
-c$$$      CALL DIELB(0.0d0,21.88d0,1.6273d1,-.7020d0,1.1899d0,T4,ALDB)
-c$$$       ALD=(ALD+ALDB)*SUPR
-c$$$C
-c$$$C     C-T (BHD 80)
-c$$$C
-c$$$      CT=(.45+8.18*T4**.47)*1.E-9*XH/DELA(MI)
-c$$$      CTHE=1.E-9*XHE/DELA(MI)
-c$$$C     ALRAD FROM GOULD (1978)
-c$$$      ALTRAD=5.43E-12/T4**.5
-c$$$      ALGS(16)=0.350*ALTRAD
-c$$$      ALEX(16)=ALTRAD*(1.-0.350)*FIR31
-c$$$      ALRAD=ALGS(16)+ALEX(16)     
-c$$$      ALO(4)=ALRAD+ALD+CT+CTHE
-c$$$      CALL DIEL(1.4d-3,1.7d5,3.3d0,5.8d4,TE,ALD)
-c$$$      CALL DIELB(-3.6d-3,.7519d0,1.5252d0,-8.38d-2,.2769d0,T4,ALDB)
-c$$$c!!      IF(DEN(IK).GT.1.E9) SUPR=0.20
-c$$$c!!      IF(DEN(IK).LT.1.E9) SUPR=1.000
-c$$$       ALD=(ALD+ALDB)*SUPR
-c$$$C
-c$$$C     C-T (BHD 80)
-c$$$C
-c$$$      XH=XA(2,1)*AB(1)
       CT=(.28+.49*T4**.61)*1.E-9*XH/DELA(MI)
-c$$$      CTHE=T4*2.E-10*XHE/DELA(MI)
-c$$$      ALTRAD=2.05E-12/T4**.5
-c$$$      ALGS(15)=0.346*ALTRAD
-c$$$      ALEX(15)=ALTRAD*(1.-0.346)*FIR31
-c$$$      ALRAD=ALGS(15)+ALEX(15)     
-c$$$      ALO(3)=ALRAD+ALD+CT+CTHE
       ALCTO3=CT
-c$$$      CALL DIEL(1.4d-3,1.7d5,2.5d0,1.3d5,TE,ALD)
-c$$$      CALL DIELB(0.0d0,2.28d-2,6.59d-2,3.49d-2,.5334d0,T4,ALDB)
-c$$$       ALD=(ALD+ALDB)*SUPR
-c$$$C
-c$$$C     C-T FS 71
-c$$$C
-c$$$      CTH=(.66+.25*T4**.5)*1.E-9*XH/DELA(MI)
        CTCA=7.6E-10*SQRT(TE/300.)
        CTCA=CTCA*XCA(1)*AB(11)/DELA(MI)
        ALCTO2=CTCA
-c$$$      ALTRAD=3.31E-13/T4**.5
-c$$$      ALGS(14)=0.260*ALTRAD
-c$$$      ALEX(14)=ALTRAD*(1.-0.260)*FIR31
-c$$$      ALRAD=ALGS(14)+ALEX(14)     
-c$$$      ALO(2)=ALRAD+ALD+ALCTO2
-c$$$      ALTOT(14)=ALO(2)-ALCTO2
-
 
       IF(ILOWION.EQ.1) KMAXi=2
       IF(ILOWION.EQ.0) KMAXi=8
@@ -699,83 +623,6 @@ C     *****
 C     IONIZATION EQUIL. FOR CARBON INCLUDING AUGER IONIZATION
 C     *****
 C     ***************************************************************
-c      ALC(1)=0.0E0
-C      ALRAD FROM GOULD (78)
-c$$$      ALTRAD=4.66E-13/T4**.5
-c$$$      ALGS(12)=0.500*ALTRAD
-c$$$      ALRAD=ALTRAD*(0.500+(1.-0.500)*FIR31)
-c$$$      CALL DIEL(6.9d-4,1.1d5,3.d0,4.9d4,TE,ALD)
-c$$$      CALL DIELB(1.08d-2,-.1075d0,.281d0,-1.93d-2,-.1127d0,T4,ALDB)
-c$$$c!!      IF(DEN(IK).GT.1.E9) SUPR=0.17
-c$$$c!!      IF(DEN(IK).LT.1.E9) SUPR=1.
-c$$$       ALD=(ALD+ALDB)*SUPR
-c$$$      IF(TE.LT.1000.) ALD=0.
-c$$$      ALC2=ALRAD+ALD
-c$$$      ALTOT(12)=ALC2
-c$$$C     ALRAD FROM GOULD (1978)
-c$$$      ALRAD=2.45E-12*(.474+.526/T4**.27)/SQRT(T4)
-c$$$      CALL DIEL(7.0d-3,1.5d5,0.5d0,2.3d5,TE,ALD)
-c$$$      CALL DIELB(1.8267d0,4.1012d0,4.8443d0,.2261d0,.596d0,T4,ALDB)
-c$$$       ALD=(ALD+ALDB)*SUPR
-c$$$C
-c$$$C     C-T BHD 80
-c$$$C
-c$$$      CT=1.18E-12*XH/DELA(MI)
-c$$$      ALC3=ALRAD+ALD+CT
-c$$$      CALL DIEL(3.8d-3,9.1d4,2.d0,3.7d5,TE,ALD)
-c$$$      CALL DIELB(2.3196d0,1.0733d1,6.883d0,-.1824d0,.4101d0,T4,ALDB)
-c$$$       ALD=(ALD+ALDB)*SUPR
-c$$$C
-c$$$C     C-T BHD 80
-c$$$C
-c$$$      CT=(1.49+2.09*T4**.39)*1.E-9*XH/DELA(MI)
-c$$$C
-c$$$C     REC (GOULD 78)
-c$$$C
-c$$$      ALC4=5.05E-12/T4**.770+ALD+CT
-c$$$      CALL DIEL(4.8d-2,3.4d6,0.2d0,5.1d5,TE,ALD)
-c$$$       ALD=ALD*SUPR
-c$$$C
-c$$$C     C-T (B D 80)
-c$$$C
-c$$$      CT=(-.05+.81*T4**1.353)*1.E-9*XH/DELA(MI)
-c$$$      ALC5=8.45E-12/T4**.817+ALD+CT
-c$$$      CALL DIEL(4.8d-2,4.1d6,0.2d0,7.6d5,TE,ALD)
-c$$$       ALD=ALD*SUPR
-c$$$      ALC6=1.7E-11/T4**.721+ALD
-c$$$      ALC7=AL5
-
-C
-C      COLL. IONIZATION (LOTZ)
-C
-c$$$      COC(1)=1.4E-10*SQRT(TE)*EXP(-13.1/T4)
-c$$$      COC(2)=4.0E-10*SQRT(TE)*EXP(-35.8/T4)
-c$$$      COC(3)=2.3E-11*SQRT(TE)*EXP(-55.6/T4)
-c$$$      COC(4)=6.4E-12*SQRT(TE)*EXP(-74.8/T4)
-c$$$      COC(5)=0.
-c$$$      IF(T4.LT.10.) GOTO 891
-c$$$      COC(5)=3.5E-13*SQRT(TE)*EXP(-454./T4)
-c$$$  891 COC(6)=0.
-c$$$      IF(T4.LT.10.) GOTO 892
-c$$$      COC(6)=1.1E-13*SQRT(TE)*EXP(-568./T4)
-c$$$  892 CONTINUE
-c$$$C
-c$$$C     AUGER IONIZATION EQUATIONS
-c$$$C
-c$$$      AUG=0.
-c$$$      ZB(1)=ZE(12)+ZK(12)+CISEC(7)/DEN(IK)**2
-c$$$      ZB(2)=ZE(13)+ZK(13)+(ZK(12)*AUG*ALC(2)*DELA(MI))/ZB(1)
-c$$$      ZB(3)=ZE(8)+ZK(8)+(ZK(13)*AUG*ALC(3)*DELA(MI))/ZB(2)
-c$$$      ZB(4)=ZE(9)+ZK(9)+(ZK(8)*AUG*ALC(4)*DELA(MI))/ZB(3)
-c$$$c      ZB(2)=ZE(13)+ZK(13)
-c$$$c      ZB(3)=ZE(8)+ZK(8)
-c$$$c      ZB(4)=ZE(9)+ZK(9)
-c$$$      ZB(5)=ZE(10)+ZK(10)
-c$$$      ZB(6)=ZE(11)+ZK(11)
-c$$$      DO  L=1,6
-c$$$         XR(L)=(COC(L)+ZB(L)/DELA(MI))/ALC(L+1)
-c$$$      enddo
-c$$$c      CALL SOLVE(1,6,7,XR,XC)
 
       call augion(6,6,dela(mi),xc)            
       DO L=3,6
@@ -791,87 +638,6 @@ C     *****
 C     IONIZATION EQUIL. FOR NITOGEN INCLUDING AUGER IONIZATIONS.
 C     *****
 C     ***************************************************************
-C
-C     NITROGEN COLL. ION. RATES (LOTZ)
-C
-c$$$      CON(1)=6.52E-11*SQRT(TE)*EXP(-16.8/T4)
-c$$$      CON(2)=4.33E-11*SQRT(TE)*EXP(-34.3/T4)
-c$$$      CON(3)=1.25E-11*SQRT(TE)*EXP(-55./T4)
-c$$$      CON(4)=0.
-c$$$      IF(T4.LT.2.) GOTO 885
-c$$$      CON(4)=8.96E-12*SQRT(TE)*EXP(-89.9/T4)
-c$$$  885 CON(5)=0.
-c$$$      IF(T4.LT.2.) GOTO 886
-c$$$      CON(5)=2.83E-12*SQRT(TE)*EXP(-113.6/T4)
-c$$$  886 CON(6)=0.
-c$$$      CON(7)=0.
-c$$$      IF(T4.LT.10.) GOTO 823
-c$$$      CON(6)=1.44E-13*SQRT(TE)*EXP(-641./T4)/(1.+0.1*T4/641.)
-c$$$      CON(7)=4.93E-14*SQRT(TE)*EXP(-774./T4)/(1.+0.1*T4/774.)
-c$$$ 823  CONTINUE
-c$$$C
-c$$$C     NITROGEN RECOMB. COEFF (ALD.&PEQ)
-c$$$C
-c$$$      ALN1=0.
-c$$$      CALL DIEL(5.2d-4,1.3d5,3.8d0,4.8d4,TE,ALD)
-c$$$      CALL DIELB(0.d0,.631d0,.199d0,-1.97d-2,.4398d0,T4,ALDB)
-c$$$c!!      IF(DEN(IK).GT.1.E9) SUPR=0.20
-c$$$       ALD=(ALD+ALDB)*SUPR
-c$$$C
-c$$$C     C-T BD 79
-c$$$C
-c$$$      CT=1.0E-12*XH/DELA(MI)
-c$$$      ALN2=4.1E-13/T4**.608+ALD+CT
-c$$$      CALL DIEL(1.7d-3,1.4d5,4.1d0,6.8d4,TE,ALD)
-c$$$      CALL DIELB(3.2d-2,-.6624d0,4.3191d0,3.d-4,.5946d0,T4,ALDB)
-c$$$       ALD=(ALD+ALDB)*SUPR
-c$$$C
-c$$$C     C-T (BHD 1980 )
-c$$$C
-c$$$      CT=(.57+.29*T4**.46)*1.E-9*XH/DELA(MI)
-c$$$      ALN3=2.2E-12/T4**.639+ALD+CT
-c$$$      CALL DIEL(1.2d-2,1.8d5,1.4d0,3.8d5,TE,ALD)
-c$$$      CALL DIELB(-.8806d0,1.124d1,3.071d1,-1.1721d0,.6127d0,T4,ALDB)
-c$$$       ALD=(ALD+ALDB)*SUPR
-c$$$C
-c$$$C     C-T BHD 80
-c$$$C
-c$$$      CT=(-.82+3.75*T4**.67)*1.E-9*XH/DELA(MI)
-c$$$      ALN4=5.0E-12/T4**.676+ALD+CT
-c$$$      CALL DIEL(5.5d-3,1.1d5,3.0d0,5.9d5,TE,ALD)
-c$$$      CALL DIELB(.4134d0,-4.6319d0,2.5917d1,-2.229d0,.236d0,T4,ALDB)
-c$$$       ALD=(ALD+ALDB)*SUPR
-c$$$C
-c$$$C     CT (BUTLER AND DALG. 1980 )
-c$$$C
-c$$$      CT=(-.0036+.164*T4**1.455)*1.E-9*XH/DELA(MI)
-c$$$      ALN5=9.55E-12/T4**.743+ALD+CT
-c$$$      CALL DIEL(7.6d-2,4.7d6,0.2d0,7.2d5,TE,ALD)
-c$$$       ALD=ALD*SUPR
-c$$$      ALN6=1.5E-11/T4**.850+ALD
-c$$$      CALL DIEL(6.6d-2,5.4d6,0.2d0,9.8d5,TE,ALD)
-c$$$       ALD=ALD*SUPR
-c$$$      ALN7=2.9E-11/T4**.750+ALD
-c$$$      ALN8=AL(6)
-c$$$C
-c$$$C     AUGER IONIZATION EQUATIONS
-c$$$C
-c$$$      ZC(1)=ZE(18)+ZK(18)
-c$$$      IF(ZC(1).LE.1.E-33) GOTO 1276
-c$$$      ZC(2)=ZE(19)+ZK(19)+ALN(2)*DELA(MI)*ZK(18)/ZC(1)
-c$$$      ZC(3)=ZE(20)+ZK(20)+ALN(3)*DELA(MI)*ZK(19)/ZC(2)
-c$$$      ZC(4)=ZE(21)+ZK(21)+ALN(4)*DELA(MI)*ZK(20)/ZC(3)
-c$$$      ZC(5)=ZE(22)+ZK(22)+ALN(5)*DELA(MI)*ZK(21)/ZC(4)
-c$$$      ZC(6)=ZE(23)+ZK(23)
-c$$$      ZC(7)=ZE(24)+ZK(24)
-c$$$ 1276 CONTINUE
-c$$$      IF(ILOWION.EQ.1) KMAXi=2
-c$$$      IF(ILOWION.EQ.0) KMAXi=7
-c$$$      DO  K=1,KMAXi
-c$$$         XR(K)=(CON(K)+ZC(K)/DELA(MI))/ALN(K+1)
-c$$$      enddo
-c$$$c     CALL SOLVE(1,KMAX,8,XR,XN)
-
       call augion(7,7,dela(mi),xn)
       DO K=1,7
          XA(2,17+K)=XN(K)
@@ -1100,7 +866,7 @@ c S+16 = Si XVII
       DSU=DSU*ABn(11)      
       X8=1.
       DO IO=1,7
-         X17=X8-XAr(IO)
+         X8=X8-XAr(IO)
       enddo
       DAR=0.
       DO IO=2,7
@@ -1162,8 +928,6 @@ C     RATES ARE ADJUSTED TO AGREE WITH OSTERBROCKS VALUES FOR
 C     T<2.E4*Z**2
 C     *****
 C     ***************************************************************
-c$$$      YI(1)=1.57E5/TE
-c$$$      YI(2)=YI(1)
       YI(3)=4.*YI(1)
       YI(4)=64.*YI(1)
       YI(5)=36.*YI(1)
@@ -1634,6 +1398,7 @@ C     TOTAL O III 1D POPULATION
          wlix(5,3,k)=wlin(k)
          cinx(5,3,k)=weh(k)/(del(ik))
          ilabcfx(5,3,k)=503
+         taulinex(5,3,k)=taul(k)
       enddo
       
 C
@@ -1678,6 +1443,9 @@ C     O IV 25.88 MU MAZDA
       Z=AB(3)*XO(4)
       CALL RLOSS(17,2.588D5,2.33D0,2.D0,4.D0,5.20D-4,RS,XEL,Z,TE,C143
      &     ,W(83),CIN(83),FRQQ,83,WLI(83))
+c      tauline(83)=t0
+c      ilabcf(83)=504
+c      C143=cl(83)
       cinx(5,4,2)=cin(83)
       taulinex(5,4,2)=t0
       wlix(5,4,2)=wli(83)
@@ -1743,7 +1511,7 @@ C
 C
 C     NEON
 C
-C     NE II 12.814 MY Pradhan
+C     NE II 12.814 MY Pradhan. Updated coll. str. Wang+ 2017
       Z=ABN(6)*XNE(2)
       OM=0.303*t4**0.065
       CALL RLOSS(6,12.814D4,OM,4.D0,2.D0,8.55D-3,RS,XEL,Z,TE,c1322
@@ -1758,14 +1526,15 @@ C     NE II 12.814 MY Pradhan
 c     New Ne III
 
 c     Coll. strengths from Butler & Zeippen 1994, A:s from Pradhan comp.
-
+c updated 230601 Mao et al 2021,McLaughlin+ 2011      
+      Z=ABN(6)*XNE(3)
       call FIVELEV_dp(74,6,3,5,
-     &     0.0d0,642.9d0,920.4d0,25840.8d0,55750.6d0,
+     &     0.0d0,642.876d0,920.55d0,25840.8d0,55752.7d0,
      &     5.d0,3.d0,1.d0,1.d0,1.d0,
      &     5.97d-3,2.18d-8,1.71d-1,3.94d-3,1.15d-3,5.42d-2,
-     &     2.00d0,8.51d-6,0.0d0,0.271d0,
-     &     0.774d0,0.208d0,0.754d0,0.084d0,0.244d0,0.452d0,
-     &     0.050d0,0.151d0,0.017d0,0.269d0,
+     &     2.06d0,8.51d-6,0.0d0,0.271d0,
+     &     0.60d0,0.170d0,0.55d0,0.084d0,0.167d0,0.32d0,
+     &     0.050d0,0.151d0,0.017d0,0.55d0,
      &     TE,Z,XI)
 
       DO I=1,5
@@ -1930,7 +1699,7 @@ C          BY OSTERBROCK (-74) P 245.
 C               A FROM
 C
       Z=AB(7)*XM(1)
-      OM=1.60*T4**0.56
+      OM=1.60*T4**0.56      
       CALL RLOSS(39,4572.D0,OM,1.D0,9.D0,7.20D1,RS,XEL,Z,TE,C511
      &     ,W(20),CIN(20),FR(2,20),20,WLI(20))
       cinx(8,1,4)=cin(20)
@@ -1976,6 +1745,8 @@ C
       OM=3.251*T4**0.112
       CALL RLOSS(47,1671.D0,OM,1.D0,3.D0,1.46D9,RS,XEL,Z,TE,c921
      &     ,W(42),CIN(42),FR(2,42),42,WLI(42))
+c      tauline(42)=t0
+c      ilabcf(42)=902
       cinx(9,2,1)=cin(42)
       taulinex(9,2,1)=t0
       wlix(9,2,1)=wli(42)
@@ -1987,6 +1758,8 @@ C
       om=3.251*t4**0.25
       CALL RLOSS(47,2670.D0,om,1.D0,9.D0,1.11d3,RS,XEL,Z,TE,c922
      &     ,W(81),CIN(81),FR(2,81),81,WLI(81))
+c      tauline(81)=t0
+c      ilabcf(81)=902
       cinx(9,2,2)=cin(81)
       taulinex(9,2,2)=t0
       wlix(9,2,2)=wli(81)
@@ -1995,12 +1768,14 @@ C
       line_cool(9,2)=c921+c922
 
 C
-C     AL III 1854.7 1862.8 OM and A Kingdon 
+C     AL III 1854.7 1862.8 OM and A Kingdon (Cloudy 90)
 C
       Z=ABn(9)*XAL(3)
       om=16.0*t4**0.1
       CALL RLOSS(48,1858.D0,om,2.D0,6.D0,5.55D8,RS,XEL,Z,TE,c931
      &     ,W(96),CIN(96),FR(2,96),96,WLI(96))
+c      tauline(96)=t0
+c      ilabcf(96)=903
       cinx(9,3,1)=cin(96)
       taulinex(9,3,1)=t0
       wlix(9,3,1)=wli(96)
@@ -2159,7 +1934,7 @@ C     *************************************************************
          ll=ll+1
          if(ipopch.eq.1) then
             cinx(11,2,k)=weh(k)/del(ik)
-            taulinex(11,2,k)=taul(k)
+c            taulinex(11,2,k)=taul(k)
             wlix(11,2,k)=wlin(k)
          endif
          ilabcfx(11,2,k)=1102
@@ -2177,8 +1952,11 @@ C     *************************************************************
       call popchianti(11,3,te,XQ,cos3)
       kmaxp(11,3)=kmaxp(11,3)+1
       do k=1,kmaxp(11,3)
+c         ll=ll+1
+c         wli(ll)=wlin(k)
+c         cin(ll)=weh(k)/del(ik)
          cinx(11,3,k)=weh(k)/del(ik)
-         taulinex(11,3,k)=taul(k)
+c         taulinex(11,3,k)=taul(k)
          wlix(11,3,k)=wlin(k)
          ilabcfx(11,3,k)=1103
       enddo
@@ -2191,7 +1969,7 @@ c S IV
       do k=1,kmaxp(11,4)
          if(ipopch.eq.1) then
             cinx(11,4,k)=weh(k)/del(ik)
-            taulinex(11,4,k)=taul(k)
+c            taulinex(11,4,k)=taul(k)
             wlix(11,4,k)=wlin(k)
          endif
          ilabcfx(11,4,k)=1104
@@ -3015,23 +2793,6 @@ C      IF(ZQ.NE.0.) DZ=ABS(ZQ-ZOLD)/ZQ
       MI=1
 c!! mq.le.1
       IF(MQ.LE.1) GOTO 776
-C     IF(DZ.GT.0.1) GOTO 776
-C!!!  OTS FOR ALL IONS!!
-cnots      GE=0.
-cnots      PH=0.
-c$$$C     HYDROGEN
-c$$$      PHI=0.
-c$$$      PHIT=0.
-c$$$      DO J=1,5
-c$$$         PHIJ=AB(1)*XNQ(5,J)*PHEAT(5,J)/DEN(IK)
-c$$$C     CORRECT FOR NONTHERMAL IONIZATIONS AND EXCITATIONS
-c$$$         IF(J.EQ.1) PHIJ=FHEAT*PHIJ
-c$$$         PHITJ=AB(1)*XNQ(5,J)*PHEATT(5,J)/DEN(IK)
-c$$$         PHI=PHI+PHIJ
-c$$$         PHIT=PHIT+PHITJ
-c$$$      ENDDO
-c$$$      PHEI=FHEAT*AB(2)*XA(2,2)*GE(2)
-c$$$  PHEII=FHEAT*AB(2)*XA(2,3)*GE(3)
       pheii=0.
       PO=0.
       POT=0.
@@ -3138,9 +2899,24 @@ c no H, He
          do ion=1,27
             coolt=coolt+line_cool(iel,ion)
             if(abs(line_cool(iel,ion)) > 0.) then
+c               write(6,9281)iel,ion,line_cool(iel,ion),coolt
+ 9281          format('coolants ',2i5,1pe12.3,10e12.3)
             endif
          enddo
       enddo
+
+      do iel=3,14
+         do ion=1,26
+            do k=1,401
+               if(abs(cinx(iel,ion,k)) > 1.e-2*coolt) then
+c                  write(6,9271)iel,ion,k,wlix(iel,ion,k),xion(ik,iel,ion),dcrit(iel,ion,k),taulinex(iel,ion,k),
+c     &                 cinx(iel,ion,k),cinx(iel,ion,k)/coolt
+ 9271             format('strongest lines ',3i5,1pe12.3,10e12.3)
+               endif
+            enddo
+         enddo
+      enddo
+
 
       COOL=FF+RECCA+RECOX+RECSI+RECS+RECFE + coolt
      
@@ -3209,7 +2985,7 @@ c      write(6,*)' '
      &     gahe/(DEL(IK)*den(ik)**2),RAD
 
  8278 IF(IFPOP.EQ.1) WRITE(6,*)' NO CONVERGENCE IN POP-ROUTINE'
- 7362 FORMAT(1X,'I,T,X,R,DEN,H,C,X*C,H-XC ',i5,1pe12.3,e12.3,e15.7,8E11.4)
+ 7362 FORMAT(1X,'I,T,X,R,DEN,H,C,X*C,H-XC ',i5,1pe12.3,e12.3,e15.7,8E12.4)
       inition=0
 c no H, He
       do iel=3,14

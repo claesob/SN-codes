@@ -226,6 +226,11 @@ c same as 8.63e-6 * .....
      &           omega*exp(-tex/te)/g(ionnri,il)
             c(ionnri,iu,il)=2.1716e-8*(13.6068*1.602e-12/(1.38e-16*te))**0.5*
      &           omega/g(ionnri,iu)
+c$$$            if(iu <= 5) then
+c$$$               write(6,9)iel,ion,ionnri,iu,il,te,g(ionnri,iu),g(ionnri,il),omega,c(ionnri,iu,il)
+c$$$ 9             format('omega ',5i4,1pe12.3,10e12.3)
+c$$$            endif
+               
          enddo
       enddo
 

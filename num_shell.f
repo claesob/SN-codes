@@ -113,9 +113,9 @@ c     Ar
             elseif(ne<=26) then
                ns(iel,i)=7
             endif
-            if(iel==18.or.iel==26.or.iel==8.or.iel==10..or.iel==20) then
-               write(6,*)iel,i,ne,ns(iel,i)
-            endif
+c            if(iel==18.or.iel==26.or.iel==8.or.iel==10..or.iel==20) then
+c               write(6,*)iel,i,ne,ns(iel,i)
+c            endif
          enddo
       enddo
             

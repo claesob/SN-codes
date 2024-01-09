@@ -29,10 +29,9 @@ c      data nopr/3,10,11,23,24,5,6,80,81,37,38,70,71/
             Sk(iz,j)=0.
          enddo
       enddo
-      open(42,file='./ATDAT/reilman.cross3.dat',status='old')
+c      open(42,file='./ATDAT/reilman.cross3.dat',status='old')
       call enint
       call num_shell
-
       CALL CRVERN(1,1,1)
       CALL CRVERN(2,2,1)
       CALL CRVERN(6,6,3)
@@ -41,7 +40,6 @@ c      data nopr/3,10,11,23,24,5,6,80,81,37,38,70,71/
       CALL CRVERN(10,10,3)
       CALL CRVERN(11,11,4)
       CALL CRVERN(12,12,4)
-
       CALL CRVERN(13,4,5)
       CALL CRVERN(14,14,5)
       CALL CRVERN(16,16,5)
@@ -54,98 +52,6 @@ c      data nopr/3,10,11,23,24,5,6,80,81,37,38,70,71/
 
 
 
-      SUBROUTINE SEAT(J,SI0R,ALR,SR,E0R,J0,SIG)
-      IMPLICIT REAL*8(A-H,O-Z)
-      include 'parameters.h'
-      REAL*4 SI0R,ALR,SR,E0R
-      PARAMETER (NE1=-200,NE2=130,NE3=NE2+1)
-      COMMON/INT/FL(2,NE1:NE2),SI(ncr,NE1:NE2),E1(NE1:NE3),E(NE1:NE3)
-      SI0=DBLE(SI0R)
-      AL=DBLE(ALR)
-      S=DBLE(SR)
-      E0=DBLE(E0R)
-      SIG=0.
-      IF(E1(J).LT.E0.AND.J0.LT.2) GOTO 100
-      IF(J.LT.J0.AND.J0.GE.2) GOTO 100
-      SIG=SI0*1.E-18*(AL*(E0/E1(J))**S+(1.-AL)*(E0/E1(J))**(S+1.))
-  100 CONTINUE
-      RETURN
-      END
-
-      SUBROUTINE SHELL(J,SI0R,SR,E0R,J0,SIG)
-      IMPLICIT REAL*8(A-H,O-Z)
-      include 'parameters.h'
-      REAL*4 SI0R,SR,E0R
-      PARAMETER (NE1=-200,NE2=130,NE3=NE2+1)
-      COMMON/INT/FL(2,NE1:NE2),SI(ncr,NE1:NE2),E1(NE1:NE3),E(NE1:NE3)
-        SI0=DBLE(SI0R)
-        S=DBLE(SR)
-        E0=DBLE(E0R)
-      SIG=0.E0
-      IF(E1(J).LT.E0.AND.J0.LT.2) GOTO 100
-      IF(J.LT.J0.AND.J0.GE.2) GOTO 100
-      SIG=SI0*1.D-18*(E0/E1(J))**S
-  100 CONTINUE
-      RETURN
-      END 
-
-      DOUBLE PRECISION FUNCTION CR(J,E0R,C1R,C2R,C3R,C4R,C5R,C6R,C7R,
-     & S0R,JW)
-      IMPLICIT REAL*8(A-H,O-Z)
-      include 'parameters.h'
-      REAL*4 E0R,C1R,C2R,C3R,C4R,C5R,C6R,C7R,S0R
-      PARAMETER (NE1=-200,NE2=130,NE3=NE2+1)
-      COMMON/INT/FL(2,NE1:NE2),SI(ncr,NE1:NE2),E1(NE1:NE3),E(NE1:NE3)
-      COMMON/FRE/NINT,JMIN,JJ
-      E0=DBLE(E0R)
-      C1=DBLE(C1R)
-      C2=DBLE(C2R)
-      C3=DBLE(C3R)
-      C4=DBLE(C4R)
-      C5=DBLE(C5R)
-      C6=DBLE(C6R)
-      C7=DBLE(C7R)
-      S0=DBLE(S0R)
-      IF(JW.GT.2) J0=JW
-      IF(JW.LE.2) J0=JW
-      CR=0.
-      IF(E1(J).LT.E0.AND.J0.LT.2) GOTO 100
-      IF(J.LT.J0.AND.J0.GE.2) GOTO 100
-      EL=LOG10(E1(J))
-      S=C1+C2*EL+C4*EL**3+C6*EL**5+C3/EL**2+C5/EL**4+C7/EL**6
-      CR=1.E-18*(E0/E1(J))**S0*10.**S
- 100  CONTINUE
-       RETURN
-        END
-
-      DOUBLE PRECISION FUNCTION CRB(J,E0R,C1R,C2R,C3R,C4R,C5R,C6R,C7R,
-     & S0R,JW)
-      IMPLICIT REAL*8(A-H,O-Z)
-      REAL*4 E0R,C1R,C2R,C3R,C4R,C5R,C6R,C7R,S0R      
-      PARAMETER (NE1=-200,NE2=130,NE3=NE2+1)
-      include 'parameters.h'
-      COMMON/INT/FL(2,NE1:NE2),SI(ncr,NE1:NE2),E1(NE1:NE3),E(NE1:NE3)
-      COMMON/FRE/NINT,JMIN,JJ
-      IF(JW.GT.2) J0=JW
-      IF(JW.LE.2) J0=JW
-      E0=DBLE(E0R)
-      C1=DBLE(C1R)
-      C2=DBLE(C2R)
-      C3=DBLE(C3R)
-      C4=DBLE(C4R)
-      C5=DBLE(C5R)
-      C6=DBLE(C6R)
-      C7=DBLE(C7R)
-      S0=DBLE(S0R)
-      CRB=0.
-      IF(E1(J).LT.E0.AND.J0.LT.2) GOTO 100
-      IF(J.LT.J0.AND.J0.GE.2) GOTO 100
-      EL=LOG10(E1(J))
-      S=C1/EL**3+C2/EL**2+C3/EL+C4+C5*EL+C6*EL**2+C7*EL**3
-      CRB=1.E-18*(E0/E1(J))**S0*10.**S
- 100  CONTINUE
-      RETURN
-      END
 
       SUBROUTINE ENINT
 C     ***********************************************************
@@ -499,12 +405,12 @@ C
       EL(95)=52.42
 C     READ K-SHELL ENERGIES FROM FILE. DATA FROM REILMAN & MANSON FILE.
 C     H AND HE LIKE EXCLUDED
-      OPEN(41,FILE='./ATDAT/kshell.dat',status='old')
-      DO K=1,100
-        READ(41,*,END=66)KQ,ET
-        EK(KQ)=ET
-      ENDDO
-66    CONTINUE
+c$$$      OPEN(41,FILE='./ATDAT/kshell.dat',status='old')
+c$$$      DO K=1,100
+c$$$        READ(41,*,END=66)KQ,ET
+c$$$        EK(KQ)=ET
+c$$$      ENDDO
+c$$$66    CONTINUE
       DO 300 J=JMIN,JJ
 C     O VIII
       IF(E(J).GE.870.) THEN
@@ -712,220 +618,5 @@ c     &           ethresh(iel,ion,is)
       
 
 
-
-
-      subroutine crossint(z)
-      implicit real*8(a-h,o-z)
-      integer z
-      PARAMETER (NE1=-200,NE2=130,NE3=NE2+1)
-      parameter (nz1=2,nz2=2,nz3=6,nz4=2,nz5=6,nz6=10,nz7=2)
-      dimension sg1(26,ne1:ne2),et1(26),sg2(26,ne1:ne2),et2(26),
-     $          sg3(26,ne1:ne2),et3(26),sg4(26,ne1:ne2),et4(26),
-     $          sg5(26,ne1:ne2),et5(26),sg6(26,ne1:ne2),et6(26),
-     $          sg7(26,ne1:ne2),et7(26)
-      dimension nl(7)
-      data nl/2,2,6,2,6,10,2/
-      nk=0
-      nls=0
-      nlp=0
-      nms=0
-      nmp=0
-      nmd=0
-      nns=0
-      nnp=0
-      if(z.gt.2) then
-       nk=2
-      else
-       nk=z
-      endif
-      if(z.gt.4) then
-       nls=2
-      else
-       nls=z-2
-      endif
-      if(z.gt.10) then
-       nlp=6
-      else
-       nlp=z-4
-      endif
-      if(z.gt.12) then
-       nms=2
-      else
-       nms=z-10
-      endif
-      if(z.gt.18) then
-        nmp=6
-        if(z.le.20) then
-          nmd=0
-          nns=z-18
-        elseif(z.le.28) then
-          nmd=z-20
-          nns=2
-          if(z.eq.24) then
-c           Cr
-            nmd=5
-            nns=1
-          endif
-        endif
-      else
-       nmp=z-12
-      endif
-      iz1=z
-      iz2=iz1-nns
-      iz3=iz2-nmd
-      iz4=iz3-nmp
-      iz5=iz4-nms
-      iz6=iz5-nlp
-      iz7=iz6-nls
-      nz=z-1
-      call manrd(sg1,et1,iz1,sg2,et2,iz2,sg3,et3,iz3,sg4,et4,iz4,
-     $                 sg5,et5,iz5,sg6,et6,iz6,sg7,et7,iz7,nz,nsh)
-      return
-      end
-
-      subroutine manrd(sg1,et1,nz1,sg2,et2,nz2,sg3,et3,nz3,sg4,et4,nz4,
-     $                 sg5,et5,nz5,sg6,et6,nz6,sg7,et7,nz7,nz,nsh)
-      IMPLICIT REAL*8(A-H,O-Z)
-      character*80 head
-      PARAMETER (NE1=-200,NE2=130,NE3=NE2+1)
-      include 'parameters.h'
-      COMMON/INT/FL(2,NE1:NE2),SI(ncr,NE1:NE2),E1(NE1:NE3),E(NE1:NE3)
-      COMMON/FRE/NINT,JMIN,JJ
-c
-      common/sigma/ sg(26,ne1:ne2,7),et(26,7)
-c
-      dimension sg1(26,ne1:ne2),et1(26),sg2(26,ne1:ne2),et2(26),
-     $          sg3(26,ne1:ne2),et3(26),sg4(26,ne1:ne2),et4(26),
-     $          sg5(26,ne1:ne2),et5(26),sg6(26,ne1:ne2),et6(26),
-     $          sg7(26,ne1:ne2),et7(26)
-      dimension etmp(200),stmp(200)
-      dimension nshell(26),nesh(7)
-      dimension nzz(7)
-c
-      data nshell/2*1,2*2,6*3,2*4,6*5,6*6,2*7/
-      data nesh/2,2,6,2,6,6,2/
-c
-      nzz(1)=nz1
-      nzz(2)=nz2
-      nzz(3)=nz3
-      nzz(4)=nz4
-      nzz(5)=nz5
-      nzz(6)=nz6
-      nzz(7)=nz7
-c
-c      print 9322,nz,nsh
-9322  format (1h , ' in manrd ',2i4)
-c
-c     step through ion satges
-      do 5 mn=1,nz
-c
-         nelec=nz1+1-mn
-         njmx=nshell(nelec)
-c         print 9389,mn,nelec,njmx
-9389     format (' mn, nel, nj' ,3i4)
-c
-c        fill the threshold temporary
-         et(mn,1)=et1(mn)
-         et(mn,2)=et2(mn)
-         et(mn,3)=et3(mn)
-         et(mn,4)=et4(mn)
-         et(mn,5)=et5(mn)
-         et(mn,6)=et6(mn)
-         et(mn,7)=et7(mn)
-c
-c        read the ion heading
-         read (42,9902)head
-9902     format (a)
-c
-c        step through subshells
-         do 6 nj=1,njmx
-c
-            nelec=nzz(nj)+1-mn
-            nelec=min0(nelec,nesh(nj))
-            nelec=max0(nelec,0)
-            enelec=float(nelec)
-c
-c           read the threshold.
-            read (42,9903)swtch1,swtch2
-            et(mn,nj)=swtch1
-9903        format (f7.3,3x,f3.1)
-            if (swtch1.lt.(-0.9)) go to 5
-            if (swtch2.gt.(0.9)) go to 10
-c
-c           read from manson table
-            do 1 jk=1,500
-               jkk=jk
-               read (42,9901)etmp(jk),stmp(jk)
-9901           format (40x,e10.4,18x,e10.4)
-               if (etmp(jk).ge.4999.) go to 11
-1           continue
-11          continue
-            numrd=jkk
-c
-c           interpolate into epi grid
-            jkk=1
-            do 2 kl=jmin,jj
-               epii=e1(kl)
-               sg(mn,kl,nj)=0.
-               if (epii.lt.et(mn,nj)) go to 2
-               if (jkk.ge.(numrd-1)) go to 3
-98                if (epii.le.etmp(jkk+1)) go to 99
-                     jkk=jkk+1
-                     if (jkk.lt.(numrd-1)) go to 98
-99                continue
-                  sgtmp=stmp(jkk+1)+(stmp(jkk)-stmp(jkk+1))
-     $               *(epii-etmp(jkk+1))/(etmp(jkk)-etmp(jkk+1))
-                  go to 22
-3              continue
-               alfa=log(stmp(jkk)/stmp(jkk-10))/
-     &                  log(etmp(jkk)/etmp(jkk-10))
-               sgtmp=stmp(jkk+1)*(epii/etmp(jkk+1))**alfa
-22             continue
-                  sg(mn,kl,nj)=sgtmp*(1.e-18)
-c                 add Compton
-                  csc=1.-(5.11e+5)*et(mn,nj)/(epii*epii)
-                  csc=dmax1(csc,-1.d0)   
-                  sigmn=(6.65e-25)*(1.+csc*(3.+csc*csc)/4.)/2.
-                  sigmn=dmax1(sigmn,0.d0)
-                  sg(mn,kl,nj)=dmax1(sg(mn,kl,nj),enelec*sigmn)
-2           continue
-c
-c           use cross sections from neutral values with apprpriate treshold
-            go to 6
-10          continue
-            do 13 kl=jmin,jj
-               epii=e1(kl)
-               sg(mn,kl,nj)=0.
-               if (epii.lt.et(mn,nj)) go to 13
-               sg(mn,kl,nj)=sg(1,kl,nj)
-13          continue
-c
-6        continue
-c
-         read (42,9902)
-c
-c
-5     continue
-c
-c        fill output arrays
-         do 64 ml=jmin,jj
-            do 65 ll=1,nz1
-65             sg1(ll,ml)=sg(ll,ml,1)
-            do 66 ll=1,nz2
-66             sg2(ll,ml)=sg(ll,ml,2)
-            do 67 ll=1,nz3
-67             sg3(ll,ml)=sg(ll,ml,3)
-            do 68 ll=1,nz4
-68             sg4(ll,ml)=sg(ll,ml,4)
-            do 69 ll=1,nz5
-69             sg5(ll,ml)=sg(ll,ml,5)
-            do 70 ll=1,nz6
-70             sg6(ll,ml)=sg(ll,ml,6)
-            do 71 ll=1,nz7
-71             sg7(ll,ml)=sg(ll,ml,7)
-64       continue
-c
-      return
-      end
 
 

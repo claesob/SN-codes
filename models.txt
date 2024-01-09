@@ -1,0 +1,7 @@
+Model	Type	L	V_in	fill	tau			input file
+273	CNS	3e35	50	0.1	6.8			csnneb
+283	PWN	5e34	25	0.1	6.8			pwnneb
+285	PWN	5e34	100	1.0	12			pwnfi1
+291	ONe-PWN	5e35	125	0.1	9.0			o_ne_c
+295	Br1	1e36	111.8	0.1	6.8 break at 4.10 keV	pwnbr1
+296	Br2	2e36	158.1	0.1	6.8 break at 1.25 keV 	pwnbr2

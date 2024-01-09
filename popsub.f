@@ -36,6 +36,7 @@ c
       common/timecheck/time,itime
       common/velgrad/dr_dv      
       common/debug/ideb
+      common/critdens/dcrit(14,27,401)
       real*8 XI(NL),C(NL,NL)
       real*8 AA(nlp1,nlp1),X(nl),XO(NL),betot(nl,nl)
       dimension kch(nl,nl),tau(nl,nl)
@@ -152,6 +153,7 @@ C
                         T0=1.e-24*WL(J,I)**3*A(J,I)*G(J)*DEI*TIME/
      &                       (8.*PI*G(I))                        
                      ENDIF
+                     tau(j,i)=t0
                   else
                      t0=0.
                   endif
@@ -180,6 +182,9 @@ C
                   ESC(J,I)=BE_ji
                   
                   tau(j,i) = t0
+c$$$                  if((iel==5.or.iel==11).and.t0>0.) then
+c$$$                     write(6,*)'tau1 ',iel,ion,i,j,wl(i,j),t0,tau(j,i)
+c$$$                  endif
                   
                   if(j.gt.i) then 
                      be_ij=be_ji
@@ -316,6 +321,11 @@ c            kch(i,j)=0
                      wlin(k)=wlair
                   endif
                   wlix(iel,ion,k)=wlin(k)
+                  taulinex(iel,ion,k)=tau(i,j)
+                  dcrit(iel,ion,k)=a(i,j)*denel/c(i,j)
+c                  if((iel==5.or.iel==11).and.tau(i,j)>0.) then
+c                     write(6,*)'tau2 ',iel,ion,i,j,k,wl(i,j),tau(i,j),tau(j,i)
+c                  endif
                   if(weq(k).lt.-1.d-30) then
                      ierr=1
                   endif

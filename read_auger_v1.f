@@ -10,7 +10,6 @@
       common/augerfrac/eion(nz,nion,nshell),en_aug(nz,nion,nshell),
      &     fr_aug(nz,nion,nshell,10),kmax(nz,nion,nshell),ns(nz,nion),
      &     init_augfrac
-      write(6,*)' reading auger data',init_augfrac
       if(init_augfrac==1) then
          open(86,file='./ATDAT/auger_frac_cf.dat')
          do i=1,10000
